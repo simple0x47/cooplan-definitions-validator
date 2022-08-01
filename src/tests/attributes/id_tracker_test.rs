@@ -179,3 +179,35 @@ fn track_and_close_successfully() {
     id_tracker.track_attribute(&first_attribute).unwrap();
     id_tracker.close().unwrap();
 }
+
+#[test]
+fn error_on_changing_type() {
+    use std::{collections::HashMap, io::ErrorKind};
+
+    use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+
+    let mut entries: HashMap<String, Entry> = HashMap::new();
+    entries.insert(
+        "ABCD".to_string(),
+        Entry {
+            id: "ABCD".to_string(),
+            attribute_type: "double".to_string(),
+        },
+    );
+
+    let mut id_tracker: IdTracker = IdTracker::new(entries);
+    let first_attribute: Attribute = Attribute {
+        id: Some("ABCD".to_string()),
+        name: "First".to_string(),
+        data_type: "float".to_string(),
+        unit: None,
+    };
+
+    assert_eq!(
+        ErrorKind::Unsupported,
+        id_tracker
+            .track_attribute(&first_attribute)
+            .unwrap_err()
+            .kind()
+    );
+}

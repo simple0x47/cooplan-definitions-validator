@@ -15,7 +15,7 @@ pub struct IdTracker {
 impl IdTracker {
     pub fn new(entries: HashMap<String, Entry>) -> IdTracker {
         IdTracker {
-            entries: entries,
+            entries,
             found_entries: HashMap::new(),
         }
     }
@@ -38,6 +38,16 @@ impl IdTracker {
 
                 match entry {
                     Some(entry) => {
+                        if entry.attribute_type != attribute.data_type {
+                            return Err(Error::new(
+                                ErrorKind::Unsupported,
+                                format!(
+                                    "Expected attribute with type {} but found {}",
+                                    entry.attribute_type, attribute.data_type
+                                ),
+                            ));
+                        }
+
                         self.found_entries.insert(id.to_string(), entry);
 
                         Ok(())
