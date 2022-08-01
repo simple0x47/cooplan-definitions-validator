@@ -2,6 +2,8 @@ use std::{collections::HashMap, io::Error, io::ErrorKind};
 
 use crate::attributes::attribute::Attribute;
 
+use uuid::Uuid;
+
 pub struct Entry {
     pub id: String,
     pub attribute_type: String,

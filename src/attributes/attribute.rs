@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Attribute {
     pub id: Option<String>,
     pub name: String,
