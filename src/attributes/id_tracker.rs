@@ -27,6 +27,7 @@ impl IdTracker {
     /// * `InvalidInput` - if the attribute has no id.
     /// * `NotFound`- if the attribute id could not be found.
     /// * `InvalidData` - if the attribute id is duplicated.
+    /// * `Unsupported` - if the attribute type has been changed.
     ///
     /// # Arguments
     ///
