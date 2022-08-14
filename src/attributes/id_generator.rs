@@ -2,7 +2,7 @@ use crate::error::{Error, ErrorKind};
 
 use uuid::Uuid;
 
-use super::attribute::Attribute;
+use crate::attributes::attribute::Attribute;
 
 /// Sets a random id to the attribute.
 ///
