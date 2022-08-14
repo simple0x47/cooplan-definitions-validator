@@ -1,0 +1,9 @@
+{
+    "name": "food",
+    "attributes": [
+        {
+            "name": "expiration_date",
+            "type": "date"
+        }
+    ]
+}

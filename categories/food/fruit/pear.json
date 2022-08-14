@@ -1,0 +1,9 @@
+{
+    "name": "pear",
+    "attributes": [
+        {
+            "name": "color",
+            "type": "color"
+        }
+    ]
+}

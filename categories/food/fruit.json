@@ -1,0 +1,9 @@
+{
+    "name": "fruit",
+    "attributes": [
+        {
+            "name": "collection_date",
+            "type": "date"
+        }
+    ]
+}
