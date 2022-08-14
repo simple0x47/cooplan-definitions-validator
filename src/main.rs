@@ -1,3 +1,6 @@
-fn main() {
-    println!("Hello, world!");
-}
+mod attributes;
+mod categories;
+mod tests;
+mod validator;
+
+fn main() {}

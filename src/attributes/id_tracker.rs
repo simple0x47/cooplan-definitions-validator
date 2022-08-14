@@ -79,7 +79,7 @@ impl IdTracker {
     /// Error kinds:
     ///
     /// * `InvalidData` - if there are attribute ids that have not been tracked.
-    pub fn close(&mut self) -> Result<(), Error> {
+    pub fn close(&self) -> Result<(), Error> {
         if self.entries.is_empty() {
             return Ok(());
         }
