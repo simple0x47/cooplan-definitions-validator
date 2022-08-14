@@ -54,4 +54,6 @@ fn unique_random_id_constraint() {
     for attribute in attributes {
         id_tracker.track_attribute(&attribute).unwrap();
     }
+
+    id_tracker.close().unwrap();
 }
