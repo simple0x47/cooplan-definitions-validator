@@ -1,7 +1,6 @@
-use std::{
-    collections::HashMap,
-    io::{Error, ErrorKind},
-};
+use std::collections::HashMap;
+
+use crate::error::{Error, ErrorKind};
 
 use super::category::Category;
 
@@ -42,19 +41,22 @@ impl IdTracker {
                     None => {
                         if self.found_entries.contains_key(id) {
                             return Err(Error::new(
-                                ErrorKind::InvalidData,
+                                ErrorKind::DuplicatedId,
                                 format!("Duplicated category id {}", id),
                             ));
                         }
 
                         Err(Error::new(
-                            ErrorKind::NotFound,
+                            ErrorKind::IdNotFound,
                             format!("Category id {} does not exist", id),
                         ))
                     }
                 }
             }
-            None => Err(Error::new(ErrorKind::InvalidInput, "Category has no id")),
+            None => Err(Error::new(
+                ErrorKind::MissingId,
+                "Category has no id".to_string(),
+            )),
         }
     }
 
@@ -63,8 +65,8 @@ impl IdTracker {
             Some(parent) => {
                 if !self.found_entries.contains_key(parent) && !self.entries.contains_key(parent) {
                     return Err(Error::new(
-                        ErrorKind::InvalidInput,
-                        "Parent category does not exist",
+                        ErrorKind::ParentNotFound,
+                        "Parent category not found".to_string(),
                     ));
                 }
 
@@ -88,7 +90,7 @@ impl IdTracker {
         missing_ids = missing_ids.trim_end_matches(", ").to_string();
 
         return Err(Error::new(
-            ErrorKind::InvalidData,
+            ErrorKind::IdNotTracked,
             format!("Some category ids were not tracked: {}", missing_ids),
         ));
     }

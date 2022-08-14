@@ -1,7 +1,7 @@
 #[cfg(test)]
 #[test]
 fn error_on_setting_random_id_to_attribute_with_id() {
-    use std::io::ErrorKind;
+    use crate::error::ErrorKind;
 
     use crate::attributes::{attribute::Attribute, id_generator::set_random_id};
 
@@ -13,14 +13,14 @@ fn error_on_setting_random_id_to_attribute_with_id() {
     };
 
     assert_eq!(
-        ErrorKind::InvalidInput,
+        ErrorKind::CannotOverrideId,
         set_random_id(first_attribute).unwrap_err().kind()
     );
 }
 
 #[test]
 fn unique_random_id_constraint() {
-    use std::{collections::HashMap, io::ErrorKind};
+    use std::collections::HashMap;
 
     use crate::attributes::{
         attribute::Attribute, id_generator::set_random_id, id_tracker::Entry, id_tracker::IdTracker,

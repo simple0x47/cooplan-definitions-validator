@@ -1,4 +1,4 @@
-use std::io::{Error, ErrorKind};
+use crate::error::{Error, ErrorKind};
 
 use uuid::Uuid;
 
@@ -8,7 +8,7 @@ use super::attribute::Attribute;
 ///
 /// Error kinds:
 ///
-/// * `InvalidInput`: if the attribute has already an id.
+/// * `CannotOverrideId`: if the attribute has already an id.
 ///
 /// # Returns
 ///
@@ -17,8 +17,8 @@ use super::attribute::Attribute;
 pub fn set_random_id(mut attribute: Attribute) -> Result<Attribute, Error> {
     match attribute.id {
         Some(_) => Err(Error::new(
-            ErrorKind::InvalidInput,
-            "Attribute already has an id",
+            ErrorKind::CannotOverrideId,
+            "Attribute already has an id".to_string(),
         )),
         None => {
             let id = Uuid::new_v4();

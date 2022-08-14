@@ -1,4 +1,5 @@
-use std::{collections::HashMap, io::Error, io::ErrorKind};
+use crate::error::{Error, ErrorKind};
+use std::collections::HashMap;
 
 use crate::attributes::attribute::Attribute;
 
@@ -26,10 +27,10 @@ impl IdTracker {
     ///
     /// Error kinds:
     ///
-    /// * `InvalidInput` - if the attribute has no id.
-    /// * `NotFound`- if the attribute id could not be found.
-    /// * `InvalidData` - if the attribute id is duplicated.
-    /// * `Unsupported` - if the attribute type has been changed.
+    /// * `MissingId` - if the attribute has no id.
+    /// * `IdNotFound`- if the attribute id could not be found.
+    /// * `DuplicatedId` - if the attribute id is duplicated.
+    /// * `TypeChanged` - if the attribute type has been changed.
     ///
     /// # Arguments
     ///
@@ -43,7 +44,7 @@ impl IdTracker {
                     Some(entry) => {
                         if entry.attribute_type != attribute.data_type {
                             return Err(Error::new(
-                                ErrorKind::Unsupported,
+                                ErrorKind::TypeChanged,
                                 format!(
                                     "Expected attribute with type {} but found {}",
                                     entry.attribute_type, attribute.data_type
@@ -58,19 +59,22 @@ impl IdTracker {
                     None => {
                         if self.found_entries.contains_key(id) {
                             return Err(Error::new(
-                                ErrorKind::InvalidData,
+                                ErrorKind::DuplicatedId,
                                 format!("Duplicated attribute id {}", id),
                             ));
                         }
 
                         Err(Error::new(
-                            ErrorKind::NotFound,
+                            ErrorKind::IdNotFound,
                             format!("Attribute with id {} does not exist", id),
                         ))
                     }
                 }
             }
-            None => Err(Error::new(ErrorKind::InvalidInput, "Attribute has no id")),
+            None => Err(Error::new(
+                ErrorKind::MissingId,
+                "Attribute has no id".to_string(),
+            )),
         }
     }
 
@@ -78,7 +82,7 @@ impl IdTracker {
     ///
     /// Error kinds:
     ///
-    /// * `InvalidData` - if there are attribute ids that have not been tracked.
+    /// * `IdNotTracked` - if there are attribute ids that have not been tracked.
     pub fn close(&self) -> Result<(), Error> {
         if self.entries.is_empty() {
             return Ok(());
@@ -93,7 +97,7 @@ impl IdTracker {
         missing_ids = missing_ids.trim_end_matches(", ").to_string();
 
         Err(Error::new(
-            ErrorKind::InvalidData,
+            ErrorKind::IdNotTracked,
             format!("Some attribute ids were not tracked: {}", missing_ids),
         ))
     }

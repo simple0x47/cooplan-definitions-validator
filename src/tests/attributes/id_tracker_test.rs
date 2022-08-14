@@ -3,9 +3,9 @@ use crate::attributes::id_tracker::Entry;
 
 #[test]
 fn error_no_id_attribute() {
-    use std::{collections::HashMap, io::ErrorKind};
-
     use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::error::ErrorKind;
+    use std::collections::HashMap;
 
     let mut id_tracker: IdTracker = IdTracker::new(HashMap::new());
     let no_id_attribute: Attribute = Attribute {
@@ -16,7 +16,7 @@ fn error_no_id_attribute() {
     };
 
     assert_eq!(
-        ErrorKind::InvalidInput,
+        ErrorKind::MissingId,
         id_tracker
             .track_attribute(&no_id_attribute)
             .unwrap_err()
@@ -26,9 +26,9 @@ fn error_no_id_attribute() {
 
 #[test]
 fn error_id_attribute_not_found() {
-    use std::{collections::HashMap, io::ErrorKind};
-
     use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::error::ErrorKind;
+    use std::collections::HashMap;
 
     let mut id_tracker: IdTracker = IdTracker::new(HashMap::new());
     let attribute: Attribute = Attribute {
@@ -39,16 +39,16 @@ fn error_id_attribute_not_found() {
     };
 
     assert_eq!(
-        ErrorKind::NotFound,
+        ErrorKind::IdNotFound,
         id_tracker.track_attribute(&attribute).unwrap_err().kind()
     );
 }
 
 #[test]
 fn error_duplicated_id_attribute() {
-    use std::{collections::HashMap, io::ErrorKind};
-
     use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::error::ErrorKind;
+    use std::collections::HashMap;
 
     let mut entries: HashMap<String, Entry> = HashMap::new();
     entries.insert(
@@ -75,7 +75,7 @@ fn error_duplicated_id_attribute() {
 
     id_tracker.track_attribute(&first_attribute).unwrap();
     assert_eq!(
-        ErrorKind::InvalidData,
+        ErrorKind::DuplicatedId,
         id_tracker
             .track_attribute(&second_attribute)
             .unwrap_err()
@@ -85,9 +85,9 @@ fn error_duplicated_id_attribute() {
 
 #[test]
 fn error_missing_ids() {
-    use std::{collections::HashMap, io::ErrorKind};
-
     use crate::attributes::id_tracker::IdTracker;
+    use crate::error::ErrorKind;
+    use std::collections::HashMap;
 
     let mut entries: HashMap<String, Entry> = HashMap::new();
     entries.insert(
@@ -101,16 +101,16 @@ fn error_missing_ids() {
     let mut id_tracker: IdTracker = IdTracker::new(entries);
 
     assert_eq!(
-        ErrorKind::InvalidData,
+        ErrorKind::IdNotTracked,
         id_tracker.close().unwrap_err().kind()
     );
 }
 
 #[test]
 fn id_comparison_is_correct() {
-    use std::{collections::HashMap, io::ErrorKind};
-
     use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::error::ErrorKind;
+    use std::collections::HashMap;
 
     let mut entries: HashMap<String, Entry> = HashMap::new();
     entries.insert(
@@ -145,7 +145,7 @@ fn id_comparison_is_correct() {
     id_tracker.track_attribute(&first_attribute).unwrap();
     // The second attribute must not be found because the id is not in the map.
     assert_eq!(
-        ErrorKind::NotFound,
+        ErrorKind::IdNotFound,
         id_tracker
             .track_attribute(&second_attribute)
             .unwrap_err()
@@ -182,9 +182,9 @@ fn track_and_close_successfully() {
 
 #[test]
 fn error_on_changing_type() {
-    use std::{collections::HashMap, io::ErrorKind};
-
     use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::error::ErrorKind;
+    use std::collections::HashMap;
 
     let mut entries: HashMap<String, Entry> = HashMap::new();
     entries.insert(
@@ -204,7 +204,7 @@ fn error_on_changing_type() {
     };
 
     assert_eq!(
-        ErrorKind::Unsupported,
+        ErrorKind::TypeChanged,
         id_tracker
             .track_attribute(&first_attribute)
             .unwrap_err()
