@@ -167,7 +167,7 @@ fn error_category_parent_not_found() {
 #[test]
 fn error_untracked_ids_on_close() {
     use crate::categories::id_tracker::Entry;
-    use crate::categories::{category::Category, id_tracker::IdTracker};
+    use crate::categories::id_tracker::IdTracker;
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 

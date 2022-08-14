@@ -98,7 +98,7 @@ fn error_missing_ids() {
         },
     );
 
-    let mut id_tracker: IdTracker = IdTracker::new(entries);
+    let id_tracker: IdTracker = IdTracker::new(entries);
 
     assert_eq!(
         ErrorKind::IdNotTracked,

@@ -21,6 +21,14 @@ impl IdTracker {
         }
     }
 
+    /// Tracks the id and the parent of the category.
+    ///
+    /// Error kinds:
+    ///
+    /// * `MissingId` - if the category has no id.
+    /// * `IdNotFound` - if the category's id could not be found.
+    /// * `DuplicatedId` - if the category's id is duplicated.
+    /// * `ParentNotFound` if the category's parent could not be found.
     pub fn track_category(&mut self, category: &Category) -> Result<(), Error> {
         match &category.id {
             Some(id) => {
@@ -76,6 +84,11 @@ impl IdTracker {
         }
     }
 
+    /// To be called after all categories have been tracked.
+    ///
+    /// Error kinds:
+    ///
+    /// * `IdNotTracked` - if there are category ids that have not been tracked.
     pub fn close(&self) -> Result<(), Error> {
         if self.entries.is_empty() {
             return Ok(());

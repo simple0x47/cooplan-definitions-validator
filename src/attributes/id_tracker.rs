@@ -3,8 +3,6 @@ use std::collections::HashMap;
 
 use crate::attributes::attribute::Attribute;
 
-use uuid::Uuid;
-
 pub struct Entry {
     pub id: String,
     pub attribute_type: String,
@@ -28,9 +26,9 @@ impl IdTracker {
     /// Error kinds:
     ///
     /// * `MissingId` - if the attribute has no id.
-    /// * `IdNotFound`- if the attribute id could not be found.
-    /// * `DuplicatedId` - if the attribute id is duplicated.
-    /// * `TypeChanged` - if the attribute type has been changed.
+    /// * `IdNotFound`- if the attribute's id could not be found.
+    /// * `DuplicatedId` - if the attribute's id is duplicated.
+    /// * `TypeChanged` - if the attribute's type has been changed.
     ///
     /// # Arguments
     ///
