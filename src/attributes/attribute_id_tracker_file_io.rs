@@ -23,7 +23,7 @@ impl AttributeIdTrackerIO for AttributeIdTrackerFileIO {
     /// # Returns
     ///
     /// `Ok`: `HashMap` where the keys, are the id of the attribute, and the value are instances of `AttributeEntry`.
-    /// `Error`: error detailing why the function has failed.
+    /// `Err`: error detailing why the function has failed.
     fn read_entries(&self) -> Result<HashMap<String, AttributeEntry>, std::io::Error> {
         const SPLIT_PATTERN: &str = ";";
         let mut entries: HashMap<String, AttributeEntry> = HashMap::new();

@@ -13,7 +13,7 @@ use crate::categories::category::Category;
 /// # Returns
 ///
 /// * `Ok`: returns the ownership of the category.
-/// * `Error`: contains the error that occurred.
+/// * `Err`: contains the error that occurred.
 pub fn set_random_id(mut category: Category) -> Result<Category, Error> {
     match category.id {
         Some(_) => Err(Error::new(
