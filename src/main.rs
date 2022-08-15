@@ -6,60 +6,196 @@ mod validator;
 
 use std::collections::HashMap;
 
+use attributes::{
+    attribute_id_tracker::{AttributeEntry, AttributeIdTracker},
+    attribute_id_tracker_file_io::{self, AttributeIdTrackerFileIO},
+    attribute_id_tracker_io::AttributeIdTrackerIO,
+};
 use categories::{
-    category_file_reader::CategoryFileReader,
-    category_json_deserialize::deserialize_categories_from_json_strings,
-    category_reader::CategoryReader,
+    category_file_io::build_for_all_categories,
+    category_id_tracker::{CategoryEntry, CategoryIdTracker},
+    category_id_tracker_file_io::CategoryIdTrackerFileIO,
+    category_id_tracker_io::CategoryIdTrackerIO,
+    category_io::CategoryIO,
 };
 
-fn main() {
-    let category_entries: HashMap<String, crate::categories::category_id_tracker::CategoryEntry> =
-        HashMap::new();
-    let mut category_tracker =
-        crate::categories::category_id_tracker::CategoryIdTracker::new(category_entries);
+fn write_new_ids() {
+    let category_id_tracker_io = CategoryIdTrackerFileIO::new();
+    let attribute_id_tracker_io = AttributeIdTrackerFileIO::new();
 
-    let attribute_entries: HashMap<
-        String,
-        crate::attributes::attribute_id_tracker::AttributeEntry,
-    > = HashMap::new();
-    let mut attribute_tracker =
-        crate::attributes::attribute_id_tracker::AttributeIdTracker::new(attribute_entries);
+    match build_for_all_categories() {
+        Ok(categories_files_io) => {
+            for mut category_file_io in categories_files_io {
+                match category_file_io.read() {
+                    Ok(mut category) => {
+                        let mut was_category_updated: bool = false;
 
-    let mut reader: CategoryFileReader = CategoryFileReader::new();
+                        if category.id.is_none() {
+                            match crate::categories::category_id_generator::set_random_id(category)
+                            {
+                                Ok(cat) => {
+                                    category = cat;
+                                    match &category.id {
+                                        Some(id) => {
+                                            was_category_updated = true;
 
-    match reader.read_json_category() {
-        Ok(categories_json) => match deserialize_categories_from_json_strings(&categories_json) {
-            Ok(categories) => {
-                for mut category in categories {
-                    if category.id.is_none() {
-                        match crate::categories::category_id_generator::set_random_id(category) {
-                            Ok(cat) => category = cat,
-                            Err(error) => {
-                                println!("{}", error);
-                                std::process::exit(1);
-                            }
-                        }
-                    }
-
-                    match category_tracker.track_category(&category) {
-                        Ok(_) => {
-                            for mut attribute in category.attributes {
-                                if attribute.id.is_none() {
-                                    match crate::attributes::attribute_id_generator::set_random_id(
-                                        attribute,
-                                    ) {
-                                        Ok(attr) => attribute = attr,
-                                        Err(error) => {
-                                            println!("{}", error);
+                                            match category_id_tracker_io
+                                                .write_entry(&CategoryEntry { id: id.clone() })
+                                            {
+                                                Ok(_) => (),
+                                                Err(error) => {
+                                                    println!(
+                                                        "[{}] {}",
+                                                        category_file_io.path(),
+                                                        error
+                                                    );
+                                                    std::process::exit(1);
+                                                }
+                                            }
+                                        }
+                                        None => {
+                                            println!(
+                                                "[{}]Unexpected: Category id is None",
+                                                category_file_io.path()
+                                            );
                                             std::process::exit(1);
                                         }
                                     }
                                 }
+                                Err(error) => {
+                                    println!("[{}] {}", category_file_io.path(), error);
+                                    std::process::exit(1);
+                                }
+                            }
+                        }
 
-                                match attribute_tracker.track_attribute(&attribute) {
-                                    Ok(_) => (),
+                        let attributes = category.attributes;
+                        category.attributes = Vec::new();
+
+                        for mut attribute in attributes {
+                            if attribute.id.is_none() {
+                                match crate::attributes::attribute_id_generator::set_random_id(
+                                    attribute,
+                                ) {
+                                    Ok(attr) => {
+                                        attribute = attr;
+
+                                        match &attribute.id {
+                                            Some(id) => {
+                                                was_category_updated = true;
+
+                                                match attribute_id_tracker_io.write_entry(
+                                                    &AttributeEntry {
+                                                        id: id.clone(),
+                                                        attribute_type: attribute.data_type.clone(),
+                                                    },
+                                                ) {
+                                                    Ok(_) => {}
+                                                    Err(error) => {
+                                                        println!(
+                                                            "[{}] {}",
+                                                            category_file_io.path(),
+                                                            error
+                                                        );
+                                                        std::process::exit(1);
+                                                    }
+                                                }
+                                            }
+                                            None => {
+                                                println!(
+                                                    "[{}] Unexpected: Attribute id is None",
+                                                    category_file_io.path()
+                                                );
+                                                std::process::exit(1);
+                                            }
+                                        }
+                                    }
                                     Err(error) => {
-                                        println!("{}", error);
+                                        println!("[{}] {}", category_file_io.path(), error);
+                                        std::process::exit(1);
+                                    }
+                                }
+                            }
+
+                            category.attributes.push(attribute);
+                        }
+
+                        if was_category_updated {
+                            match category_file_io.write(&category) {
+                                Ok(_) => (),
+                                Err(error) => {
+                                    println!("[{}] {}", category_file_io.path(), error);
+                                    std::process::exit(1);
+                                }
+                            }
+                        }
+                    }
+                    Err(error) => {
+                        println!("[{}] {}", category_file_io.path(), error);
+                        std::process::exit(1);
+                    }
+                }
+            }
+        }
+        Err(error) => {
+            println!("{}", error);
+            std::process::exit(1);
+        }
+    }
+}
+
+fn validate_ids() {
+    let category_id_tracker_io = CategoryIdTrackerFileIO::new();
+    let attribute_id_tracker_io = AttributeIdTrackerFileIO::new();
+
+    match category_id_tracker_io.read_entries() {
+        Ok(category_entries) => {
+            let mut category_id_tracker = CategoryIdTracker::new(category_entries);
+
+            match attribute_id_tracker_io.read_entries() {
+                Ok(attribute_entries) => {
+                    let mut attribute_id_tracker = AttributeIdTracker::new(attribute_entries);
+
+                    match build_for_all_categories() {
+                        Ok(categories_files_io) => {
+                            for mut category_file_io in categories_files_io {
+                                match category_file_io.read() {
+                                    Ok(mut category) => {
+                                        if category.id.is_none() {
+                                            continue;
+                                        }
+
+                                        match category_id_tracker.track_category(&category) {
+                                            Ok(_) => {
+                                                let attributes = category.attributes;
+                                                category.attributes = Vec::new();
+
+                                                for attribute in attributes {
+                                                    if attribute.id.is_none() {
+                                                        continue;
+                                                    }
+
+                                                    match attribute_id_tracker
+                                                        .track_attribute(&attribute)
+                                                    {
+                                                        Ok(_) => {
+                                                            category.attributes.push(attribute);
+                                                        }
+                                                        Err(error) => {
+                                                            println!("{}", error);
+                                                            std::process::exit(1);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            Err(error) => {
+                                                println!("[{}] {}", category_file_io.path(), error);
+                                                std::process::exit(1);
+                                            }
+                                        }
+                                    }
+                                    Err(error) => {
+                                        println!("[{}] {}", category_file_io.path(), error);
                                         std::process::exit(1);
                                     }
                                 }
@@ -70,16 +206,35 @@ fn main() {
                             std::process::exit(1);
                         }
                     }
+
+                    match category_id_tracker.close() {
+                        Ok(_) => match attribute_id_tracker.close() {
+                            Ok(_) => {}
+                            Err(error) => {
+                                println!("{}", error);
+                                std::process::exit(1);
+                            }
+                        },
+                        Err(error) => {
+                            println!("{}", error);
+                            std::process::exit(1);
+                        }
+                    }
+                }
+                Err(error) => {
+                    println!("{}", error);
+                    std::process::exit(1);
                 }
             }
-            Err(error) => {
-                println!("{}", error);
-                std::process::exit(1);
-            }
-        },
+        }
         Err(error) => {
             println!("{}", error);
             std::process::exit(1);
         }
     }
+}
+
+fn main() {
+    validate_ids();
+    write_new_ids();
 }
