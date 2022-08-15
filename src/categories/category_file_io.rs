@@ -3,6 +3,7 @@ use std::io::{Error, ErrorKind};
 use crate::categories::category::Category;
 use crate::categories::category_io::CategoryIO;
 
+/// Abstract wrapping of a file containing the definition of a category.
 pub struct CategoryFileIO {
     path: String,
 }
@@ -97,6 +98,12 @@ fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
     }
 }
 
+/// Creates instances of `CategoryFileIO` for each file that has been found to be a category definition.
+///
+/// # Returns
+///
+/// `Ok`: vector containing instances of `CategoryFileIO` for each category definition file that has been found.
+/// `Err`: error detailing why the function has failed.
 pub fn build_for_all_categories() -> Result<Vec<CategoryFileIO>, Error> {
     const CATEGORIES_DIRECTORY: &str = "./categories/";
 
