@@ -1,11 +1,11 @@
 #[cfg(test)]
 #[test]
 fn error_no_id_category() {
-    use crate::categories::{category::Category, id_tracker::IdTracker};
+    use crate::categories::{category::Category, category_id_tracker::CategoryIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut tracker = IdTracker::new(HashMap::new());
+    let mut tracker = CategoryIdTracker::new(HashMap::new());
     let category = Category {
         id: None,
         parent: None,
@@ -21,20 +21,20 @@ fn error_no_id_category() {
 
 #[test]
 fn error_duplicated_id_category() {
-    use crate::categories::id_tracker::Entry;
-    use crate::categories::{category::Category, id_tracker::IdTracker};
+    use crate::categories::category_id_tracker::CategoryEntry;
+    use crate::categories::{category::Category, category_id_tracker::CategoryIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, CategoryEntry> = HashMap::new();
     entries.insert(
         "id".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id".to_string(),
         },
     );
 
-    let mut tracker = IdTracker::new(entries);
+    let mut tracker = CategoryIdTracker::new(entries);
     let category = Category {
         id: Some("id".to_string()),
         parent: None,
@@ -51,11 +51,11 @@ fn error_duplicated_id_category() {
 
 #[test]
 fn error_id_category_not_found() {
-    use crate::categories::{category::Category, id_tracker::IdTracker};
+    use crate::categories::{category::Category, category_id_tracker::CategoryIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut tracker = IdTracker::new(HashMap::new());
+    let mut tracker = CategoryIdTracker::new(HashMap::new());
     let category = Category {
         id: Some("id".to_string()),
         parent: None,
@@ -71,27 +71,27 @@ fn error_id_category_not_found() {
 
 #[test]
 fn track_categories_successfully() {
-    use crate::categories::id_tracker::Entry;
-    use crate::categories::{category::Category, id_tracker::IdTracker};
+    use crate::categories::category_id_tracker::CategoryEntry;
+    use crate::categories::{category::Category, category_id_tracker::CategoryIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, CategoryEntry> = HashMap::new();
     entries.insert(
         "id".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id".to_string(),
         },
     );
 
     entries.insert(
         "id2".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id2".to_string(),
         },
     );
 
-    let mut tracker = IdTracker::new(entries);
+    let mut tracker = CategoryIdTracker::new(entries);
     let first = Category {
         id: Some("id".to_string()),
         parent: None,
@@ -123,27 +123,27 @@ fn track_categories_successfully() {
 
 #[test]
 fn error_category_parent_not_found() {
-    use crate::categories::id_tracker::Entry;
-    use crate::categories::{category::Category, id_tracker::IdTracker};
+    use crate::categories::category_id_tracker::CategoryEntry;
+    use crate::categories::{category::Category, category_id_tracker::CategoryIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, CategoryEntry> = HashMap::new();
     entries.insert(
         "id".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id".to_string(),
         },
     );
 
     entries.insert(
         "id2".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id2".to_string(),
         },
     );
 
-    let mut tracker = IdTracker::new(entries);
+    let mut tracker = CategoryIdTracker::new(entries);
     let first = Category {
         id: Some("id".to_string()),
         parent: None,
@@ -166,67 +166,67 @@ fn error_category_parent_not_found() {
 
 #[test]
 fn error_untracked_ids_on_close() {
-    use crate::categories::id_tracker::Entry;
-    use crate::categories::id_tracker::IdTracker;
+    use crate::categories::category_id_tracker::CategoryEntry;
+    use crate::categories::category_id_tracker::CategoryIdTracker;
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, CategoryEntry> = HashMap::new();
     entries.insert(
         "id".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id".to_string(),
         },
     );
 
     entries.insert(
         "id2".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id2".to_string(),
         },
     );
 
     entries.insert(
         "id3".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id3".to_string(),
         },
     );
 
-    let tracker = IdTracker::new(entries);
+    let tracker = CategoryIdTracker::new(entries);
 
     assert_eq!(ErrorKind::IdNotTracked, tracker.close().unwrap_err().kind());
 }
 
 #[test]
 fn track_and_close_successfully() {
-    use crate::categories::id_tracker::Entry;
-    use crate::categories::{category::Category, id_tracker::IdTracker};
+    use crate::categories::category_id_tracker::CategoryEntry;
+    use crate::categories::{category::Category, category_id_tracker::CategoryIdTracker};
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, CategoryEntry> = HashMap::new();
     entries.insert(
         "id".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id".to_string(),
         },
     );
 
     entries.insert(
         "id2".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id2".to_string(),
         },
     );
 
     entries.insert(
         "id3".to_string(),
-        Entry {
+        CategoryEntry {
             id: "id3".to_string(),
         },
     );
 
-    let mut tracker = IdTracker::new(entries);
+    let mut tracker = CategoryIdTracker::new(entries);
     let first = Category {
         id: Some("id".to_string()),
         parent: None,

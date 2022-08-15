@@ -1,6 +1,8 @@
 use crate::attributes::attribute::Attribute;
 
-#[derive(Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Category {
     pub id: Option<String>,
     pub parent: Option<String>,

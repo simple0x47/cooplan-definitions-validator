@@ -1,3 +1,3 @@
 pub mod attribute;
-pub mod id_generator;
-pub mod id_tracker;
+pub mod attribute_id_generator;
+pub mod attribute_id_tracker;

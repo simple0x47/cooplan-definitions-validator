@@ -1,7 +1,7 @@
 #[cfg(test)]
 #[test]
 fn error_on_setting_random_id_to_category_with_id() {
-    use crate::categories::id_generator::set_random_id;
+    use crate::categories::category_id_generator::set_random_id;
     use crate::error::ErrorKind;
 
     use crate::categories::category::Category;
@@ -24,10 +24,11 @@ fn unique_random_id_constraint() {
     use std::collections::HashMap;
 
     use crate::categories::{
-        category::Category, id_generator::set_random_id, id_tracker::Entry, id_tracker::IdTracker,
+        category::Category, category_id_generator::set_random_id,
+        category_id_tracker::CategoryEntry, category_id_tracker::CategoryIdTracker,
     };
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, CategoryEntry> = HashMap::new();
     let mut categories: Vec<Category> = Vec::new();
 
     for i in 0..1000 {
@@ -41,7 +42,7 @@ fn unique_random_id_constraint() {
         let category_with_id = set_random_id(category).unwrap();
         let category_id = category_with_id.id.clone().unwrap();
 
-        let entry: Entry = Entry {
+        let entry: CategoryEntry = CategoryEntry {
             id: category_id.clone(),
         };
 
@@ -49,7 +50,7 @@ fn unique_random_id_constraint() {
         categories.push(category_with_id);
     }
 
-    let mut id_tracker: IdTracker = IdTracker::new(entries);
+    let mut id_tracker: CategoryIdTracker = CategoryIdTracker::new(entries);
 
     for category in categories {
         id_tracker.track_category(&category).unwrap();

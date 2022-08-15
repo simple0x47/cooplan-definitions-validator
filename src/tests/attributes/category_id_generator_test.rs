@@ -3,7 +3,7 @@
 fn error_on_setting_random_id_to_attribute_with_id() {
     use crate::error::ErrorKind;
 
-    use crate::attributes::{attribute::Attribute, id_generator::set_random_id};
+    use crate::attributes::{attribute::Attribute, attribute_id_generator::set_random_id};
 
     let first_attribute: Attribute = Attribute {
         id: Some("ABCD".to_string()),
@@ -23,10 +23,11 @@ fn unique_random_id_constraint() {
     use std::collections::HashMap;
 
     use crate::attributes::{
-        attribute::Attribute, id_generator::set_random_id, id_tracker::Entry, id_tracker::IdTracker,
+        attribute::Attribute, attribute_id_generator::set_random_id,
+        attribute_id_tracker::AttributeEntry, attribute_id_tracker::AttributeIdTracker,
     };
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, AttributeEntry> = HashMap::new();
     let mut attributes: Vec<Attribute> = Vec::new();
 
     for i in 0..1000 {
@@ -40,7 +41,7 @@ fn unique_random_id_constraint() {
         let attribute_with_id = set_random_id(attribute).unwrap();
         let attribute_id = attribute_with_id.id.clone().unwrap();
 
-        let entry: Entry = Entry {
+        let entry: AttributeEntry = AttributeEntry {
             id: attribute_id.clone(),
             attribute_type: "float".to_string(),
         };
@@ -49,7 +50,7 @@ fn unique_random_id_constraint() {
         attributes.push(attribute_with_id);
     }
 
-    let mut id_tracker: IdTracker = IdTracker::new(entries);
+    let mut id_tracker: AttributeIdTracker = AttributeIdTracker::new(entries);
 
     for attribute in attributes {
         id_tracker.track_attribute(&attribute).unwrap();

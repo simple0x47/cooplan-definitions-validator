@@ -4,18 +4,18 @@ use crate::error::{Error, ErrorKind};
 
 use super::category::Category;
 
-pub struct Entry {
+pub struct CategoryEntry {
     pub id: String,
 }
 
-pub struct IdTracker {
-    entries: HashMap<String, Entry>,
-    found_entries: HashMap<String, Entry>,
+pub struct CategoryIdTracker {
+    entries: HashMap<String, CategoryEntry>,
+    found_entries: HashMap<String, CategoryEntry>,
 }
 
-impl IdTracker {
-    pub fn new(entries: HashMap<String, Entry>) -> IdTracker {
-        IdTracker {
+impl CategoryIdTracker {
+    pub fn new(entries: HashMap<String, CategoryEntry>) -> CategoryIdTracker {
+        CategoryIdTracker {
             entries,
             found_entries: HashMap::new(),
         }

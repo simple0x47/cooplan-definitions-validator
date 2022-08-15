@@ -1,13 +1,13 @@
 #[cfg(test)]
-use crate::attributes::id_tracker::Entry;
+use crate::attributes::attribute_id_tracker::AttributeEntry;
 
 #[test]
 fn error_no_id_attribute() {
-    use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::attributes::{attribute::Attribute, attribute_id_tracker::AttributeIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut id_tracker: IdTracker = IdTracker::new(HashMap::new());
+    let mut id_tracker: AttributeIdTracker = AttributeIdTracker::new(HashMap::new());
     let no_id_attribute: Attribute = Attribute {
         id: None,
         name: "".to_string(),
@@ -26,11 +26,11 @@ fn error_no_id_attribute() {
 
 #[test]
 fn error_id_attribute_not_found() {
-    use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::attributes::{attribute::Attribute, attribute_id_tracker::AttributeIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut id_tracker: IdTracker = IdTracker::new(HashMap::new());
+    let mut id_tracker: AttributeIdTracker = AttributeIdTracker::new(HashMap::new());
     let attribute: Attribute = Attribute {
         id: Some("ABCD".to_string()),
         name: "".to_string(),
@@ -46,20 +46,20 @@ fn error_id_attribute_not_found() {
 
 #[test]
 fn error_duplicated_id_attribute() {
-    use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::attributes::{attribute::Attribute, attribute_id_tracker::AttributeIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, AttributeEntry> = HashMap::new();
     entries.insert(
         "ABCD".to_string(),
-        Entry {
+        AttributeEntry {
             id: "ABCD".to_string(),
             attribute_type: "".to_string(),
         },
     );
 
-    let mut id_tracker: IdTracker = IdTracker::new(entries);
+    let mut id_tracker: AttributeIdTracker = AttributeIdTracker::new(entries);
     let first_attribute: Attribute = Attribute {
         id: Some("ABCD".to_string()),
         name: "First".to_string(),
@@ -85,20 +85,20 @@ fn error_duplicated_id_attribute() {
 
 #[test]
 fn error_missing_ids() {
-    use crate::attributes::id_tracker::IdTracker;
+    use crate::attributes::attribute_id_tracker::AttributeIdTracker;
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, AttributeEntry> = HashMap::new();
     entries.insert(
         "ABCD".to_string(),
-        Entry {
+        AttributeEntry {
             id: "ABCD".to_string(),
             attribute_type: "".to_string(),
         },
     );
 
-    let id_tracker: IdTracker = IdTracker::new(entries);
+    let id_tracker: AttributeIdTracker = AttributeIdTracker::new(entries);
 
     assert_eq!(
         ErrorKind::IdNotTracked,
@@ -108,27 +108,27 @@ fn error_missing_ids() {
 
 #[test]
 fn id_comparison_is_correct() {
-    use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::attributes::{attribute::Attribute, attribute_id_tracker::AttributeIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, AttributeEntry> = HashMap::new();
     entries.insert(
         "1234".to_string(),
-        Entry {
+        AttributeEntry {
             id: "1234".to_string(),
             attribute_type: "".to_string(),
         },
     );
     entries.insert(
         "5678".to_string(),
-        Entry {
+        AttributeEntry {
             id: "5678".to_string(),
             attribute_type: "".to_string(),
         },
     );
 
-    let mut id_tracker: IdTracker = IdTracker::new(entries);
+    let mut id_tracker: AttributeIdTracker = AttributeIdTracker::new(entries);
     let first_attribute: Attribute = Attribute {
         id: Some("1234".to_string()),
         name: "First".to_string(),
@@ -157,18 +157,18 @@ fn id_comparison_is_correct() {
 fn track_and_close_successfully() {
     use std::collections::HashMap;
 
-    use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::attributes::{attribute::Attribute, attribute_id_tracker::AttributeIdTracker};
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, AttributeEntry> = HashMap::new();
     entries.insert(
         "ABCD".to_string(),
-        Entry {
+        AttributeEntry {
             id: "ABCD".to_string(),
             attribute_type: "".to_string(),
         },
     );
 
-    let mut id_tracker: IdTracker = IdTracker::new(entries);
+    let mut id_tracker: AttributeIdTracker = AttributeIdTracker::new(entries);
     let first_attribute: Attribute = Attribute {
         id: Some("ABCD".to_string()),
         name: "First".to_string(),
@@ -182,20 +182,20 @@ fn track_and_close_successfully() {
 
 #[test]
 fn error_on_changing_type() {
-    use crate::attributes::{attribute::Attribute, id_tracker::IdTracker};
+    use crate::attributes::{attribute::Attribute, attribute_id_tracker::AttributeIdTracker};
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
-    let mut entries: HashMap<String, Entry> = HashMap::new();
+    let mut entries: HashMap<String, AttributeEntry> = HashMap::new();
     entries.insert(
         "ABCD".to_string(),
-        Entry {
+        AttributeEntry {
             id: "ABCD".to_string(),
             attribute_type: "double".to_string(),
         },
     );
 
-    let mut id_tracker: IdTracker = IdTracker::new(entries);
+    let mut id_tracker: AttributeIdTracker = AttributeIdTracker::new(entries);
     let first_attribute: Attribute = Attribute {
         id: Some("ABCD".to_string()),
         name: "First".to_string(),

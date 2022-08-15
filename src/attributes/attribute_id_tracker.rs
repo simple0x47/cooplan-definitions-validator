@@ -3,19 +3,19 @@ use std::collections::HashMap;
 
 use crate::attributes::attribute::Attribute;
 
-pub struct Entry {
+pub struct AttributeEntry {
     pub id: String,
     pub attribute_type: String,
 }
 
-pub struct IdTracker {
-    entries: HashMap<String, Entry>,
-    found_entries: HashMap<String, Entry>,
+pub struct AttributeIdTracker {
+    entries: HashMap<String, AttributeEntry>,
+    found_entries: HashMap<String, AttributeEntry>,
 }
 
-impl IdTracker {
-    pub fn new(entries: HashMap<String, Entry>) -> IdTracker {
-        IdTracker {
+impl AttributeIdTracker {
+    pub fn new(entries: HashMap<String, AttributeEntry>) -> AttributeIdTracker {
+        AttributeIdTracker {
             entries,
             found_entries: HashMap::new(),
         }
