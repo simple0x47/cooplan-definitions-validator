@@ -1,9 +1,13 @@
 {
-    "name": "food",
-    "attributes": [
-        {
-            "name": "expiration_date",
-            "type": "date"
-        }
-    ]
+  "id": "9961ed43-919d-4d4a-86d9-92688dc2e12d",
+  "parent": null,
+  "name": "food",
+  "attributes": [
+    {
+      "id": "36cbe1c1-5a11-4409-ad90-9bd7b4d5b72c",
+      "name": "expiration_date",
+      "data_type": "date",
+      "unit": null
+    }
+  ]
 }

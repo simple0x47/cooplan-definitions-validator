@@ -1,9 +1,13 @@
 {
-    "name": "pear",
-    "attributes": [
-        {
-            "name": "color",
-            "type": "color"
-        }
-    ]
+  "id": "fb8ac0bf-dd1c-4129-bd31-5d8c7528a03b",
+  "parent": null,
+  "name": "pear",
+  "attributes": [
+    {
+      "id": "c3ad4a80-b290-433a-b1f7-2db0c6d26007",
+      "name": "color",
+      "data_type": "color",
+      "unit": null
+    }
+  ]
 }
