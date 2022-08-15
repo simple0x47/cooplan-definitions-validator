@@ -18,6 +18,12 @@ impl AttributeIdTrackerFileIO {
 }
 
 impl AttributeIdTrackerIO for AttributeIdTrackerFileIO {
+    /// Proceeds to read the entries from a file that contains the id and the data type of an attribute, separated by ';', i.e. "1234-1234-1234;date".
+    ///
+    /// # Returns
+    ///
+    /// `Ok` -> `HashMap` where the keys, are the id of the attribute, and the value are instances of `AttributeEntry`.
+    /// `Error` -> error detailing why the function has failed.
     fn read_entries(&self) -> Result<HashMap<String, AttributeEntry>, std::io::Error> {
         const SPLIT_PATTERN: &str = ";";
         let mut entries: HashMap<String, AttributeEntry> = HashMap::new();
