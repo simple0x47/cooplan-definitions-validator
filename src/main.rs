@@ -2,13 +2,10 @@ mod attributes;
 mod categories;
 mod error;
 mod tests;
-mod validator;
-
-use std::collections::HashMap;
 
 use attributes::{
     attribute_id_tracker::{AttributeEntry, AttributeIdTracker},
-    attribute_id_tracker_file_io::{self, AttributeIdTrackerFileIO},
+    attribute_id_tracker_file_io::AttributeIdTrackerFileIO,
     attribute_id_tracker_io::AttributeIdTrackerIO,
 };
 use categories::{

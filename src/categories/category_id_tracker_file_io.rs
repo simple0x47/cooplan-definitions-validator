@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs::File, io::Error};
+use std::{collections::HashMap, io::Error};
 
 use crate::categories::category_id_tracker_io::CategoryIdTrackerIO;
 
