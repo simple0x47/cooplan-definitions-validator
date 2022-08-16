@@ -20,7 +20,7 @@ jobs:
       run: cargo build --release --verbose
     - name: Generate release notes
       id: generate_release_notes
-      uses: mikepenz/release-changelog-builder-action@3.3.0
+      uses: mikepenz/release-changelog-builder-action@v3.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
