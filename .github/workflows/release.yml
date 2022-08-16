@@ -24,8 +24,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: "tags/rel-$GITHUB_RUN_NUMBER"
-        release_name: Release ${{ env.GITHUB_RUN_NUMBER }}
+        tag_name: 'rel-${{ env.GITHUB_RUN_NUMBER }}'
+        release_name: 'Release ${{ env.GITHUB_RUN_NUMBER }}'
         body: ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
