@@ -18,14 +18,17 @@ jobs:
       run: cargo test --verbose
     - name: Build
       run: cargo build --release --verbose
+    - name: Create release tag
+      id: create_release_tag
+      
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 'rel-${{ env.GITHUB_RUN_NUMBER }}'
-        release_name: 'Release ${{ env.GITHUB_RUN_NUMBER }}'
+        tag_name: "rel-${{ env.GITHUB_RUN_NUMBER }}"
+        release_name: "Release ${{ env.GITHUB_RUN_NUMBER }}"
         body: ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
