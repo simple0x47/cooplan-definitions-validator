@@ -1,0 +1,1 @@
+[![Release](https://github.com/simple0x47/cooplan-definitions-validator/actions/workflows/release.yml/badge.svg?event=push)](https://github.com/simple0x47/cooplan-definitions-validator/actions/workflows/release.yml)
