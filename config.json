@@ -1,0 +1,9 @@
+{
+    "valid_data_types": [
+        "numeric",
+        "string",
+        "date",
+        "enum",
+        "color"
+    ]
+}

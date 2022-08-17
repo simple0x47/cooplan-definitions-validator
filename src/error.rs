@@ -9,6 +9,7 @@ pub enum ErrorKind {
     IdNotTracked,
     CannotOverrideId,
     ParentNotFound,
+    InvalidDataType,
 }
 
 #[derive(Debug)]

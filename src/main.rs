@@ -3,10 +3,15 @@ mod categories;
 mod error;
 mod tests;
 
+mod config;
+mod config_file_reader;
+mod config_reader;
+
 use attributes::{
     attribute_id_tracker::{AttributeEntry, AttributeIdTracker},
     attribute_id_tracker_file_io::AttributeIdTrackerFileIO,
     attribute_id_tracker_io::AttributeIdTrackerIO,
+    attribute_validator,
 };
 use categories::{
     category_file_io::build_for_all_categories,
@@ -15,6 +20,26 @@ use categories::{
     category_id_tracker_io::CategoryIdTrackerIO,
     category_io::CategoryIO,
 };
+use config_file_reader::ConfigFileReader;
+
+use crate::{attributes::attribute_validator::AttributeValidator, config_reader::ConfigReader};
+
+fn initialize_attribute_validator() -> AttributeValidator {
+    const CONFIG_FILE_PATH: &str = "./config.json";
+    let config_reader = ConfigFileReader::new(CONFIG_FILE_PATH);
+
+    match config_reader.read() {
+        Ok(config) => {
+            let attribute_validator = AttributeValidator::new(config.valid_data_types());
+
+            return attribute_validator;
+        }
+        Err(error) => {
+            println!("{}", error);
+            std::process::exit(1);
+        }
+    }
+}
 
 fn write_new_ids() {
     let category_id_tracker_io = CategoryIdTrackerFileIO::new();
@@ -141,7 +166,7 @@ fn write_new_ids() {
     }
 }
 
-fn validate_ids() {
+fn validate_categories(attributes_validator: AttributeValidator) {
     let category_id_tracker_io = CategoryIdTrackerFileIO::new();
     let attribute_id_tracker_io = AttributeIdTrackerFileIO::new();
 
@@ -168,6 +193,16 @@ fn validate_ids() {
                                                 category.attributes = Vec::new();
 
                                                 for attribute in attributes {
+                                                    match attributes_validator
+                                                        .check_attribute_validity(&attribute)
+                                                    {
+                                                        Ok(_) => {}
+                                                        Err(error) => {
+                                                            println!("{}", error);
+                                                            std::process::exit(1);
+                                                        }
+                                                    }
+
                                                     if attribute.id.is_none() {
                                                         continue;
                                                     }
@@ -232,6 +267,7 @@ fn validate_ids() {
 }
 
 fn main() {
-    validate_ids();
+    let attributes_validator = initialize_attribute_validator();
+    validate_categories(attributes_validator);
     write_new_ids();
 }
