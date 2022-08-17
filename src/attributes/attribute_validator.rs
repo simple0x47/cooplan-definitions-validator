@@ -1,4 +1,7 @@
-use crate::attributes::attribute::Attribute;
+use crate::{
+    attributes::attribute::Attribute,
+    error::{Error, ErrorKind},
+};
 
 pub struct AttributeValidator {
     valid_data_types: Vec<String>,
@@ -21,7 +24,19 @@ impl AttributeValidator {
         false
     }
 
-    pub fn is_attribute_valid(&self, attribute: &Attribute) -> bool {
-        self.is_data_type_valid(attribute)
+    pub fn check_attribute_validity(&self, attribute: &Attribute) -> Result<(), Error> {
+        let attribute_identifier: String = attribute.id.as_ref().unwrap_or(&attribute.name).clone();
+
+        if !self.is_data_type_valid(attribute) {
+            return Err(Error::new(
+                ErrorKind::InvalidDataType,
+                format!(
+                    "Attribute '{}' has an invalid data type: {}",
+                    attribute_identifier, attribute.data_type
+                ),
+            ));
+        }
+
+        Ok(())
     }
 }
