@@ -11,7 +11,6 @@ use attributes::{
     attribute_id_tracker::{AttributeEntry, AttributeIdTracker},
     attribute_id_tracker_file_io::AttributeIdTrackerFileIO,
     attribute_id_tracker_io::AttributeIdTrackerIO,
-    attribute_validator,
 };
 use categories::{
     category_file_io::build_for_all_categories,
