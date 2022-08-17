@@ -19,10 +19,9 @@ fn detects_incorrect_data_type() {
         unit: None,
     };
 
-    assert_eq!(
-        false,
-        attribute_validator.is_attribute_valid(&incorrect_attribute)
-    );
+    attribute_validator
+        .check_attribute_validity(&incorrect_attribute)
+        .unwrap_err();
 }
 
 #[test]
@@ -45,8 +44,7 @@ fn validates_correctly_a_valid_attribute() {
         unit: None,
     };
 
-    assert_eq!(
-        true,
-        attribute_validator.is_attribute_valid(&correct_attribute)
-    );
+    attribute_validator
+        .check_attribute_validity(&correct_attribute)
+        .unwrap();
 }
