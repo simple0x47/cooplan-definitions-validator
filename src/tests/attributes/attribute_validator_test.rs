@@ -1,7 +1,10 @@
 #[cfg(test)]
 #[test]
 fn detects_incorrect_data_type() {
-    use crate::attributes::{attribute::Attribute, attribute_validator::AttributeValidator};
+    use crate::{
+        attributes::{attribute::Attribute, attribute_validator::AttributeValidator},
+        error::ErrorKind,
+    };
 
     let valid_data_types: Vec<String> = vec![
         "numeric".to_string(),
@@ -19,9 +22,13 @@ fn detects_incorrect_data_type() {
         unit: None,
     };
 
-    attribute_validator
-        .check_attribute_validity(&incorrect_attribute)
-        .unwrap_err();
+    assert_eq!(
+        ErrorKind::InvalidDataType,
+        attribute_validator
+            .check_attribute_validity(&incorrect_attribute)
+            .unwrap_err()
+            .kind()
+    );
 }
 
 #[test]
