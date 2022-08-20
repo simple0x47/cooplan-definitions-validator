@@ -10,6 +10,7 @@ fn error_on_setting_random_id_to_category_with_id() {
         id: Some("ABCD".to_string()),
         parent: None,
         name: "First".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -36,6 +37,7 @@ fn unique_random_id_constraint() {
             id: None,
             parent: None,
             name: format!("{}", i),
+            selectable_as_last: Some(false),
             attributes: Vec::new(),
         };
 

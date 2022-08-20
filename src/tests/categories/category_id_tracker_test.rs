@@ -10,6 +10,7 @@ fn error_no_id_category() {
         id: None,
         parent: None,
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -39,6 +40,7 @@ fn error_duplicated_id_category() {
         id: Some("id".to_string()),
         parent: None,
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -60,6 +62,7 @@ fn error_id_category_not_found() {
         id: Some("id".to_string()),
         parent: None,
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -96,6 +99,7 @@ fn track_categories_successfully() {
         id: Some("id".to_string()),
         parent: None,
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -103,6 +107,7 @@ fn track_categories_successfully() {
         id: Some("id2".to_string()),
         parent: None,
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -110,6 +115,7 @@ fn track_categories_successfully() {
         id: Some("id3".to_string()),
         parent: None,
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -148,12 +154,14 @@ fn error_category_parent_not_found() {
         id: Some("id".to_string()),
         parent: None,
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
     let second = Category {
         id: Some("id2".to_string()),
         parent: Some("id3".to_string()),
+        selectable_as_last: Some(false),
         name: "".to_string(),
         attributes: Vec::new(),
     };
@@ -231,6 +239,7 @@ fn track_and_close_successfully() {
         id: Some("id".to_string()),
         parent: None,
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -238,6 +247,7 @@ fn track_and_close_successfully() {
         id: Some("id2".to_string()),
         parent: Some("id".to_string()),
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 
@@ -245,6 +255,7 @@ fn track_and_close_successfully() {
         id: Some("id3".to_string()),
         parent: Some("id2".to_string()),
         name: "".to_string(),
+        selectable_as_last: Some(false),
         attributes: Vec::new(),
     };
 

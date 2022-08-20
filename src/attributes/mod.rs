@@ -4,3 +4,4 @@ pub mod attribute_id_tracker;
 pub mod attribute_id_tracker_file_io;
 pub mod attribute_id_tracker_io;
 pub mod attribute_validator;
+pub mod attribute_validator_builder;
