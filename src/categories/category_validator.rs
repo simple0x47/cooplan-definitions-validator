@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
 
 use crate::attributes::attribute_id_tracker::{AttributeEntry, AttributeIdTracker};
@@ -13,14 +14,20 @@ use super::category_id_tracker::{CategoryEntry, CategoryIdTracker};
 use super::category_id_tracker_io::CategoryIdTrackerIO;
 use super::category_io::CategoryIO;
 
-pub struct CategoryValidator {}
+pub struct CategoryValidator {
+    parent: HashMap<String, Vec<String>>,
+    selectable_as_last: Vec<String>,
+}
 
 impl CategoryValidator {
     fn new() -> CategoryValidator {
-        CategoryValidator {}
+        CategoryValidator {
+            parent: HashMap::new(),
+            selectable_as_last: Vec::new(),
+        }
     }
 
-    fn write_new_ids(&self) -> Result<(), Error> {
+    fn write_new_ids(&mut self) -> Result<(), Error> {
         let category_id_tracker_io = CategoryIdTrackerFileIO::new();
         let attribute_id_tracker_io = AttributeIdTrackerFileIO::new();
 
@@ -31,48 +38,109 @@ impl CategoryValidator {
                         Ok(mut category) => {
                             let mut was_category_updated: bool = false;
 
-                            if category.id.is_none() {
-                                match crate::categories::category_id_generator::set_random_id(
-                                    category,
-                                ) {
-                                    Ok(cat) => {
-                                        category = cat;
-                                        match &category.id {
-                                            Some(id) => {
-                                                was_category_updated = true;
+                            match &category.parent {
+                                Some(parent_id) => {
+                                    if self.selectable_as_last.contains(&parent_id) {
+                                        category.selectable_as_last = Some(true);
+                                    }
+                                }
+                                None => (),
+                            }
 
-                                                match category_id_tracker_io
-                                                    .write_entry(&CategoryEntry { id: id.clone() })
-                                                {
-                                                    Ok(_) => (),
-                                                    Err(error) => {
+                            match &category.id {
+                                Some(id) => match &category.selectable_as_last {
+                                    Some(value) => {
+                                        if *value {
+                                            self.selectable_as_last.push((*id).clone());
+                                        } else {
+                                            match self.parent.get(id) {
+                                                Some(children) => {
+                                                    if children.is_empty() {
                                                         return Err(Error::new(
-                                                            error.kind(),
-                                                            format!(
-                                                                "[{}] {}",
-                                                                category_file_io.path(),
-                                                                error
-                                                            ),
+                                                            ErrorKind::InvalidInput,
+                                                             format!(
+                                                                "[{}] category must be selectable as last or have children",
+                                                                category_file_io.path()
+                                                            )
                                                         ));
                                                     }
                                                 }
-                                            }
-                                            None => {
-                                                return Err(Error::new(
-                                                    ErrorKind::InvalidData,
-                                                    format!(
-                                                        "[{}] unexpected: category id is none",
+                                                None => return Err(Error::new(
+                                                    ErrorKind::Unsupported,
+                                                     format!(
+                                                        "[{}] category's children container has not been initialized previously",
                                                         category_file_io.path()
-                                                    ),
-                                                ));
+                                                    )
+                                                )),
                                             }
                                         }
                                     }
-                                    Err(error) => {
-                                        return Err(Error::new(
-                                            ErrorKind::Other,
-                                            format!("[{}] {}", category_file_io.path(), error),
-                                        ));
+                                    None => {
+                                        match self.parent.get(id) {
+                                            Some(children) => {
+                                                if children.is_empty() {
+                                                    return Err(Error::new(
+                                                        ErrorKind::InvalidInput,
+                                                         format!(
+                                                            "[{}] category must be selectable as last or have children",
+                                                            category_file_io.path()
+                                                        )
+                                                    ));
+                                                }
+                                            }
+                                            None => return Err(Error::new(
+                                                ErrorKind::Unsupported,
+                                                 format!(
+                                                    "[{}] category's children container has not been initialized previously",
+                                                    category_file_io.path()
+                                                )
+                                            )),
+                                        }
+                                    }
+                                },
+                                None => {
+                                    match crate::categories::category_id_generator::set_random_id(
+                                        category,
+                                    ) {
+                                        Ok(cat) => {
+                                            category = cat;
+                                            match &category.id {
+                                                Some(id) => {
+                                                    was_category_updated = true;
+
+                                                    match category_id_tracker_io.write_entry(
+                                                        &CategoryEntry { id: id.clone() },
+                                                    ) {
+                                                        Ok(_) => (),
+                                                        Err(error) => {
+                                                            return Err(Error::new(
+                                                                error.kind(),
+                                                                format!(
+                                                                    "[{}] {}",
+                                                                    category_file_io.path(),
+                                                                    error
+                                                                ),
+                                                            ));
+                                                        }
+                                                    }
+                                                }
+                                                None => {
+                                                    return Err(Error::new(
+                                                        ErrorKind::InvalidData,
+                                                        format!(
+                                                            "[{}] unexpected: category id is none",
+                                                            category_file_io.path()
+                                                        ),
+                                                    ));
+                                                }
+                                            }
+                                        }
+                                        Err(error) => {
+                                            return Err(Error::new(
+                                                ErrorKind::Other,
+                                                format!("[{}] {}", category_file_io.path(), error),
+                                            ));
+                                        }
                                     }
                                 }
                             }
@@ -163,7 +231,10 @@ impl CategoryValidator {
         }
     }
 
-    fn validate_categories(&self, attributes_validator: AttributeValidator) -> Result<(), Error> {
+    fn validate_categories(
+        &mut self,
+        attributes_validator: AttributeValidator,
+    ) -> Result<(), Error> {
         let category_id_tracker_io = CategoryIdTrackerFileIO::new();
         let attribute_id_tracker_io = AttributeIdTrackerFileIO::new();
 
@@ -180,8 +251,36 @@ impl CategoryValidator {
                                 for mut category_file_io in categories_files_io {
                                     match category_file_io.read() {
                                         Ok(mut category) => {
-                                            if category.id.is_none() {
-                                                continue;
+                                            match &category.id {
+                                                Some(id) => {
+                                                    if self.parent.contains_key(id) {
+                                                        return Err(Error::new(
+                                                            ErrorKind::InvalidData,
+                                                            format!(
+                                                                "category {} is duplicated",
+                                                                id
+                                                            ),
+                                                        ));
+                                                    }
+
+                                                    self.parent.insert((*id).clone(), Vec::new());
+
+                                                    match &category.parent {
+                                                        Some(parent_id) => {
+                                                            match self.parent.get_mut(parent_id) {
+                                                                Some(children) => {
+                                                                    children.push((*id).clone());
+                                                                }
+                                                                None => return Err(Error::new(
+                                                                    ErrorKind::InvalidInput,
+                                                                    format!("parent category has not been read first")
+                                                                    )),
+                                                            }
+                                                        }
+                                                        None => (),
+                                                    }
+                                                }
+                                                None => continue,
                                             }
 
                                             match category_id_tracker.track_category(&category) {
@@ -280,7 +379,7 @@ impl CategoryValidator {
 }
 
 pub fn validate_categories() -> Result<(), Error> {
-    let category_validator = CategoryValidator::new();
+    let mut category_validator = CategoryValidator::new();
     match build_attribute_validator() {
         Ok(attribute_validator) => {
             match category_validator.validate_categories(attribute_validator) {

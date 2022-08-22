@@ -10,6 +10,7 @@ pub enum ErrorKind {
     CannotOverrideId,
     ParentNotFound,
     InvalidDataType,
+    ParentNotRead,
 }
 
 #[derive(Debug)]
