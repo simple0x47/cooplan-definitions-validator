@@ -1,3 +1,4 @@
+use std::fs::DirEntry;
 use std::io::{Error, ErrorKind};
 
 use crate::categories::category::Category;
@@ -51,6 +52,8 @@ fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
     let mut categories_files_io: Vec<CategoryFileIO> = Vec::new();
     match std::fs::read_dir(path) {
         Ok(read) => {
+            let mut directories: Vec<DirEntry> = Vec::new();
+
             for entry_result in read {
                 let entry = entry_result.unwrap();
 
@@ -58,23 +61,7 @@ fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
                     Ok(file_type) => match entry.path().to_str() {
                         Some(path) => {
                             if file_type.is_dir() {
-                                match build_for_path(&path) {
-                                    Ok(mut child_categories_files_io) => {
-                                        let current_size = categories_files_io.len();
-                                        let child_size = categories_files_io.len();
-
-                                        // Detect overflows.
-                                        if current_size.checked_add(child_size).is_none() {
-                                            return Err(Error::new(
-                                                ErrorKind::Other,
-                                                "Cannot append vectors due to overflow.",
-                                            ));
-                                        }
-
-                                        categories_files_io.append(&mut child_categories_files_io);
-                                    }
-                                    Err(error) => return Err(error),
-                                }
+                                directories.push(entry);
                             } else {
                                 if path.ends_with(CATEGORY_FILE_EXTENSION) {
                                     categories_files_io.push(CategoryFileIO::new(path));
@@ -89,6 +76,36 @@ fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
                         }
                     },
                     Err(error) => return Err(error),
+                }
+            }
+
+            for directory in directories {
+                match directory.path().to_str() {
+                    Some(path) => {
+                        match build_for_path(path) {
+                            Ok(mut child_categories_files_io) => {
+                                let current_size = categories_files_io.len();
+                                let child_size = categories_files_io.len();
+
+                                // Detect overflows.
+                                if current_size.checked_add(child_size).is_none() {
+                                    return Err(Error::new(
+                                        ErrorKind::Other,
+                                        "cannot append vectors due to overflow",
+                                    ));
+                                }
+
+                                categories_files_io.append(&mut child_categories_files_io);
+                            }
+                            Err(error) => return Err(error),
+                        }
+                    }
+                    None => {
+                        return Err(Error::new(
+                            ErrorKind::InvalidData,
+                            format!("failed to retrieve path of directory"),
+                        ))
+                    }
                 }
             }
 
