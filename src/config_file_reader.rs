@@ -23,7 +23,7 @@ impl ConfigReader for ConfigFileReader {
                     return Err(Error::new(
                         ErrorKind::InvalidData,
                         format!("Failed to deserialize config's JSON: {}", error),
-                    ))
+                    ));
                 }
             },
             Err(error) => return Err(error),

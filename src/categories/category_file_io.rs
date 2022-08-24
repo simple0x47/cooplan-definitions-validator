@@ -104,7 +104,7 @@ fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
                         return Err(Error::new(
                             ErrorKind::InvalidData,
                             format!("failed to retrieve path of directory"),
-                        ))
+                        ));
                     }
                 }
             }
