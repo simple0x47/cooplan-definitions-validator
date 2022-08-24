@@ -1,96 +1,55 @@
-use std::collections::HashMap;
+use std::cell::RefCell;
+use std::rc::Rc;
 
-use crate::categories::category::InMemoryCategory;
+use crate::categories::in_memory_category::InMemoryCategory;
 use crate::categories::validations::validation::Validation;
 use crate::error::{Error, ErrorKind};
 
 /// Validates if the each end category is set as selectable as last by itself or by its parents.
-///
-/// To be executed only after each category has an ID assigned.
 pub struct SelectableAsLastValidation {}
 
 impl SelectableAsLastValidation {
-    fn map_categories_graph(&self, categories: &[InMemoryCategory])
-                            -> Result<HashMap<String, Vec<String>>, Error> {
-        let mut parents: HashMap<String, Vec<String>> = HashMap::new();
-        for category in categories {
-            match &category.id {
-                Some(id) => {
-                    match &category.parent {
-                        Some(parent) => {
-                            match parents.get_mut(parent) {
-                                Some(children) => {
-                                    if children.contains(id) {
-                                        return Err(Error::new(ErrorKind::DuplicatedId,
-                                                              format!("parent '{}' already contains id '{}'",
-                                                                      parent, id),
-                                        ));
-                                    }
-
-                                    children.push(id.clone());
-                                }
-                                None => {
-                                    let children_container: Vec<String> = vec![id.clone()];
-                                    parents.insert(parent.clone(), children_container);
-                                }
-                            }
-                        }
-                        None => continue,
-                    }
-                }
-                None => return Err(Error::new(ErrorKind::MissingId,
-                                              format!("category named '{}' has no id", category.name))),
-            }
-        }
-
-        Ok(parents)
+    pub fn new() -> SelectableAsLastValidation {
+        SelectableAsLastValidation {}
     }
 
-    fn identify_selectable_as_last(&self, categories: &[InMemoryCategory]) -> Result<Vec<String>, Error> {
-        let mut selectable_as_last: Vec<String> = Vec::new();
+    fn validate_selectable_as_last(&self, category_pointer: &Rc<RefCell<InMemoryCategory>>) -> Result<(), Error> {
+        match category_pointer.try_borrow() {
+            Ok(category) => {
+                if category.selectable_as_last {
+                    return Ok(());
+                }
 
-        for category in categories {
-            match &category.id {
-                Some(id) => {
-                    match &category.selectable_as_last {
-                        Some(value) => {
-                            if *value {
-                                selectable_as_last.push(id.clone());
-                            }
-                        }
-                        None => (),
+                if category.children.is_empty() {
+                    return Err(Error::new(ErrorKind::LastCategoryNotSelectable,
+                                          format!("category '{}' has no children and it is not selectable as last",
+                                                  category.id).as_str()));
+                }
+
+                for child in category.children.as_slice() {
+                    match self.validate_selectable_as_last(child) {
+                        Ok(_) => (),
+                        Err(error) => return Err(error),
                     }
                 }
-                None => return Err(Error::new(ErrorKind::MissingId,
-                                              format!("category with name '{}' has no id", category.name))),
+
+                Ok(())
             }
+            Err(error) => Err(Error::new(ErrorKind::FailedToBorrowCategory,
+                                         format!("failed to borrow category: {}", error).as_str())),
         }
-
-        Ok(selectable_as_last)
-    }
-
-    fn check_for_non_selectable_endings(&self, parents: HashMap<String, Vec<String>>, selectable_as_last: Vec<String>)
-                                        -> Result<(), Error> {
-        Ok(())
     }
 }
 
 impl Validation for SelectableAsLastValidation {
-    fn validate(&self, categories: &[InMemoryCategory]) -> Result<(), Error> {
-        match self.map_categories_graph(categories) {
-            Ok(parents) => {
-                match self.identify_selectable_as_last(categories) {
-                    Ok(selectable_as_last) => {
-                        self.check_for_non_selectable_endings(parents, selectable_as_last)
-                    }
-                    Err(error) => {
-                        Err(error)
-                    }
-                }
-            }
-            Err(error) => {
-                Err(error)
+    fn validate(&self, root_categories: &[Rc<RefCell<InMemoryCategory>>]) -> Result<(), Error> {
+        for category in root_categories {
+            match self.validate_selectable_as_last(category) {
+                Ok(_) => (),
+                Err(error) => return Err(error),
             }
         }
+
+        Ok(())
     }
 }

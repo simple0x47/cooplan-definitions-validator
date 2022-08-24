@@ -11,6 +11,9 @@ pub enum ErrorKind {
     ParentNotFound,
     InvalidDataType,
     ParentNotRead,
+    LastCategoryNotSelectable,
+    ParentNotAvailable,
+    FailedToBorrowCategory,
 }
 
 #[derive(Debug)]
@@ -20,8 +23,8 @@ pub struct Error {
 }
 
 impl Error {
-    pub fn new(kind: ErrorKind, message: String) -> Error {
-        Error { kind, message }
+    pub fn new(kind: ErrorKind, message: &str) -> Error {
+        Error { kind, message: message.to_string() }
     }
 
     pub fn kind(&self) -> ErrorKind {
