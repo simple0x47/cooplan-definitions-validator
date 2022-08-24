@@ -1,5 +1,7 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 
+use crate::categories::in_memory_category::InMemoryCategory;
 use crate::error::{Error, ErrorKind};
 
 use super::category::Category;
@@ -25,62 +27,36 @@ impl CategoryIdTracker {
     ///
     /// Error kinds:
     ///
-    /// * `MissingId` - if the category has no id.
     /// * `IdNotFound` - if the category's id could not be found.
     /// * `DuplicatedId` - if the category's id is duplicated.
-    /// * `ParentNotFound` if the category's parent could not be found.
-    pub fn track_category(&mut self, category: &Category) -> Result<(), Error> {
-        match &category.id {
-            Some(id) => {
-                let entry = self.entries.remove(id);
+    pub fn track_category(&mut self, category_pointer: &RefCell<InMemoryCategory>) -> Result<(), Error> {
+        match category_pointer.try_borrow() {
+            Ok(category) => {
+                let entry = self.entries.remove(category.id.clone().as_str());
 
                 match entry {
                     Some(entry) => {
-                        self.found_entries.insert(id.to_string(), entry);
-
-                        let parent_tracking_result = self.track_parent(&category.parent);
-
-                        if parent_tracking_result.is_err() {
-                            return parent_tracking_result;
-                        }
+                        self.found_entries.insert(category.id.clone(), entry);
 
                         Ok(())
                     }
                     None => {
-                        if self.found_entries.contains_key(id) {
+                        if self.found_entries.contains_key(category.id.clone().as_str()) {
                             return Err(Error::new(
                                 ErrorKind::DuplicatedId,
-                                format!("Duplicated category id {}", id).as_str(),
+                                format!("duplicated category id {}", category.id).as_str(),
                             ));
                         }
 
                         Err(Error::new(
                             ErrorKind::IdNotFound,
-                            format!("Category id {} does not exist", id).as_str(),
+                            format!("category id {} does not exist", category.id).as_str(),
                         ))
                     }
                 }
             }
-            None => Err(Error::new(
-                ErrorKind::MissingId,
-                "Category has no id",
-            )),
-        }
-    }
-
-    fn track_parent(&mut self, parent: &Option<String>) -> Result<(), Error> {
-        match parent {
-            Some(parent) => {
-                if !self.found_entries.contains_key(parent) && !self.entries.contains_key(parent) {
-                    return Err(Error::new(
-                        ErrorKind::ParentNotFound,
-                        "Parent category not found",
-                    ));
-                }
-
-                Ok(())
-            }
-            None => Ok(()),
+            Err(error) => Err(Error::new(ErrorKind::FailedToBorrowCategory,
+                                         format!("failed to borrow category: {}", error).as_str())),
         }
     }
 

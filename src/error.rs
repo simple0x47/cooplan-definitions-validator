@@ -14,6 +14,8 @@ pub enum ErrorKind {
     LastCategoryNotSelectable,
     ParentNotAvailable,
     FailedToBorrowCategory,
+    FailedToReadCategories,
+    FailedToTrackCategory,
 }
 
 #[derive(Debug)]

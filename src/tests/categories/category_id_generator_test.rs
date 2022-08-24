@@ -1,3 +1,7 @@
+use std::borrow::Borrow;
+
+use crate::categories::in_memory_category::InMemoryCategory;
+
 #[cfg(test)]
 #[test]
 fn error_on_setting_random_id_to_category_with_id() {
@@ -55,7 +59,9 @@ fn unique_random_id_constraint() {
     let mut id_tracker: CategoryIdTracker = CategoryIdTracker::new(entries);
 
     for category in categories {
-        id_tracker.track_category(&category).unwrap();
+        let category_pointer = InMemoryCategory::new(category.id.unwrap(), category.name,
+                                                     category.selectable_as_last.unwrap());
+        id_tracker.track_category(category_pointer.borrow()).unwrap();
     }
 
     id_tracker.close().unwrap();
