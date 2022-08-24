@@ -33,7 +33,7 @@ impl AttributeValidator {
                 format!(
                     "Attribute '{}' has an invalid data type: {}",
                     attribute_identifier, attribute.data_type
-                ),
+                ).as_str(),
             ));
         }
 

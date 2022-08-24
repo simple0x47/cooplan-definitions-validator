@@ -50,20 +50,20 @@ impl CategoryIdTracker {
                         if self.found_entries.contains_key(id) {
                             return Err(Error::new(
                                 ErrorKind::DuplicatedId,
-                                format!("Duplicated category id {}", id),
+                                format!("Duplicated category id {}", id).as_str(),
                             ));
                         }
 
                         Err(Error::new(
                             ErrorKind::IdNotFound,
-                            format!("Category id {} does not exist", id),
+                            format!("Category id {} does not exist", id).as_str(),
                         ))
                     }
                 }
             }
             None => Err(Error::new(
                 ErrorKind::MissingId,
-                "Category has no id".to_string(),
+                "Category has no id",
             )),
         }
     }
@@ -74,7 +74,7 @@ impl CategoryIdTracker {
                 if !self.found_entries.contains_key(parent) && !self.entries.contains_key(parent) {
                     return Err(Error::new(
                         ErrorKind::ParentNotFound,
-                        "Parent category not found".to_string(),
+                        "Parent category not found",
                     ));
                 }
 
@@ -104,7 +104,7 @@ impl CategoryIdTracker {
 
         return Err(Error::new(
             ErrorKind::IdNotTracked,
-            format!("Some category ids were not tracked: {}", missing_ids),
+            format!("Some category ids were not tracked: {}", missing_ids).as_str(),
         ));
     }
 }

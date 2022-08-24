@@ -1,7 +1,7 @@
-use crate::error::{Error, ErrorKind};
 use std::collections::HashMap;
 
 use crate::attributes::attribute::Attribute;
+use crate::error::{Error, ErrorKind};
 
 pub struct AttributeEntry {
     pub id: String,
@@ -46,7 +46,7 @@ impl AttributeIdTracker {
                                 format!(
                                     "Expected attribute with type {} but found {}",
                                     entry.attribute_type, attribute.data_type
-                                ),
+                                ).as_str(),
                             ));
                         }
 
@@ -58,20 +58,20 @@ impl AttributeIdTracker {
                         if self.found_entries.contains_key(id) {
                             return Err(Error::new(
                                 ErrorKind::DuplicatedId,
-                                format!("Duplicated attribute id {}", id),
+                                format!("Duplicated attribute id {}", id).as_str(),
                             ));
                         }
 
                         Err(Error::new(
                             ErrorKind::IdNotFound,
-                            format!("Attribute with id {} does not exist", id),
+                            format!("Attribute with id {} does not exist", id).as_str(),
                         ))
                     }
                 }
             }
             None => Err(Error::new(
                 ErrorKind::MissingId,
-                "Attribute has no id".to_string(),
+                "Attribute has no id".to_string().as_str(),
             )),
         }
     }
@@ -96,7 +96,7 @@ impl AttributeIdTracker {
 
         Err(Error::new(
             ErrorKind::IdNotTracked,
-            format!("Some attribute ids were not tracked: {}", missing_ids),
+            format!("Some attribute ids were not tracked: {}", missing_ids).as_str(),
         ))
     }
 }

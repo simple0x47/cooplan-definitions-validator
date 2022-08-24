@@ -10,12 +10,3 @@ pub struct Category {
     pub selectable_as_last: Option<bool>,
     pub attributes: Vec<Attribute>,
 }
-
-#[derive(Debug, Clone)]
-pub struct InMemoryCategory {
-    pub id: String,
-    pub parent: Box<InMemoryCategory>,
-    pub name: String,
-    pub selectable_as_last: bool,
-    pub children: Vec<InMemoryCategory>,
-}

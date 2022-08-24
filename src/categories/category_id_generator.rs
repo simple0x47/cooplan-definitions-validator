@@ -1,8 +1,7 @@
-use crate::error::{Error, ErrorKind};
-
 use uuid::Uuid;
 
 use crate::categories::category::Category;
+use crate::error::{Error, ErrorKind};
 
 /// Sets a random id to the category.
 ///
@@ -18,7 +17,7 @@ pub fn set_random_id(mut category: Category) -> Result<Category, Error> {
     match category.id {
         Some(_) => Err(Error::new(
             ErrorKind::CannotOverrideId,
-            "Category already has an id".to_string(),
+            "Category already has an id",
         )),
         None => {
             let id = Uuid::new_v4();
