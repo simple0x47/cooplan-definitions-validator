@@ -1,25 +1,10 @@
+use std::borrow::Borrow;
+use std::ops::Deref;
+use std::rc::Rc;
+
+use crate::categories::in_memory_category::InMemoryCategory;
+
 #[cfg(test)]
-#[test]
-fn error_no_id_category() {
-    use crate::categories::{category::Category, category_id_tracker::CategoryIdTracker};
-    use crate::error::ErrorKind;
-    use std::collections::HashMap;
-
-    let mut tracker = CategoryIdTracker::new(HashMap::new());
-    let category = Category {
-        id: None,
-        parent: None,
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
-
-    assert_eq!(
-        ErrorKind::MissingId,
-        tracker.track_category(&category).unwrap_err().kind()
-    );
-}
-
 #[test]
 fn error_duplicated_id_category() {
     use crate::categories::category_id_tracker::CategoryEntry;
@@ -36,15 +21,9 @@ fn error_duplicated_id_category() {
     );
 
     let mut tracker = CategoryIdTracker::new(entries);
-    let category = Category {
-        id: Some("id".to_string()),
-        parent: None,
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
+    let category = InMemoryCategory::new("id".to_string(), "id".to_string(), false);
 
-    tracker.track_category(&category).unwrap();
+    tracker.track_category(category.borrow()).unwrap();
     assert_eq!(
         ErrorKind::DuplicatedId,
         tracker.track_category(&category).unwrap_err().kind()
@@ -58,13 +37,7 @@ fn error_id_category_not_found() {
     use std::collections::HashMap;
 
     let mut tracker = CategoryIdTracker::new(HashMap::new());
-    let category = Category {
-        id: Some("id".to_string()),
-        parent: None,
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
+    let category = InMemoryCategory::new("id".to_string(), "id".to_string(), false);
 
     assert_eq!(
         ErrorKind::IdNotFound,
@@ -95,80 +68,17 @@ fn track_categories_successfully() {
     );
 
     let mut tracker = CategoryIdTracker::new(entries);
-    let first = Category {
-        id: Some("id".to_string()),
-        parent: None,
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
+    let first = InMemoryCategory::new("id".to_string(), "id".to_string(), false);
 
-    let second = Category {
-        id: Some("id2".to_string()),
-        parent: None,
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
+    let second = InMemoryCategory::new("id2".to_string(), "id2".to_string(), false);
 
-    let third = Category {
-        id: Some("id3".to_string()),
-        parent: None,
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
+    let third = InMemoryCategory::new("id3".to_string(), "id3".to_string(), false);
 
     tracker.track_category(&first).unwrap();
     tracker.track_category(&second).unwrap();
     assert_eq!(
         ErrorKind::IdNotFound,
         tracker.track_category(&third).unwrap_err().kind()
-    );
-}
-
-#[test]
-fn error_category_parent_not_found() {
-    use crate::categories::category_id_tracker::CategoryEntry;
-    use crate::categories::{category::Category, category_id_tracker::CategoryIdTracker};
-    use crate::error::ErrorKind;
-    use std::collections::HashMap;
-
-    let mut entries: HashMap<String, CategoryEntry> = HashMap::new();
-    entries.insert(
-        "id".to_string(),
-        CategoryEntry {
-            id: "id".to_string(),
-        },
-    );
-
-    entries.insert(
-        "id2".to_string(),
-        CategoryEntry {
-            id: "id2".to_string(),
-        },
-    );
-
-    let mut tracker = CategoryIdTracker::new(entries);
-    let first = Category {
-        id: Some("id".to_string()),
-        parent: None,
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
-
-    let second = Category {
-        id: Some("id2".to_string()),
-        parent: Some("id3".to_string()),
-        selectable_as_last: Some(false),
-        name: "".to_string(),
-        attributes: Vec::new(),
-    };
-    tracker.track_category(&first).unwrap();
-    assert_eq!(
-        ErrorKind::ParentNotFound,
-        tracker.track_category(&second).unwrap_err().kind()
     );
 }
 
@@ -235,29 +145,14 @@ fn track_and_close_successfully() {
     );
 
     let mut tracker = CategoryIdTracker::new(entries);
-    let first = Category {
-        id: Some("id".to_string()),
-        parent: None,
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
+    let first = InMemoryCategory::new("id".to_string(), "id".to_string(), false);
 
-    let second = Category {
-        id: Some("id2".to_string()),
-        parent: Some("id".to_string()),
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
 
-    let third = Category {
-        id: Some("id3".to_string()),
-        parent: Some("id2".to_string()),
-        name: "".to_string(),
-        selectable_as_last: Some(false),
-        attributes: Vec::new(),
-    };
+    let second = InMemoryCategory::new_into_parent("id2".to_string(), Rc::downgrade(&first),
+                                                   "id2".to_string(), false).unwrap();
+
+    let third = InMemoryCategory::new_into_parent("id3".to_string(), Rc::downgrade(&second),
+                                                  "id3".to_string(), false).unwrap();
 
     tracker.track_category(&first).unwrap();
     tracker.track_category(&second).unwrap();
