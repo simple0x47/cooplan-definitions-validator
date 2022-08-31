@@ -1,10 +1,10 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use crate::categories::in_memory_category::InMemoryCategory;
+use crate::categories::category::Category;
 use crate::error::{Error, ErrorKind};
 
-use super::category::Category;
+use super::source_category::SourceCategory;
 
 pub struct CategoryEntry {
     pub id: String,
@@ -29,34 +29,28 @@ impl CategoryIdTracker {
     ///
     /// * `IdNotFound` - if the category's id could not be found.
     /// * `DuplicatedId` - if the category's id is duplicated.
-    pub fn track_category(&mut self, category_pointer: &RefCell<InMemoryCategory>) -> Result<(), Error> {
-        match category_pointer.try_borrow() {
-            Ok(category) => {
-                let entry = self.entries.remove(category.id.clone().as_str());
+    pub fn track_category(&mut self, id: &str) -> Result<(), Error> {
+        let entry = self.entries.remove(id);
 
-                match entry {
-                    Some(entry) => {
-                        self.found_entries.insert(category.id.clone(), entry);
+        match entry {
+            Some(entry) => {
+                self.found_entries.insert(id.to_string(), entry);
 
-                        Ok(())
-                    }
-                    None => {
-                        if self.found_entries.contains_key(category.id.clone().as_str()) {
-                            return Err(Error::new(
-                                ErrorKind::DuplicatedId,
-                                format!("duplicated category id {}", category.id).as_str(),
-                            ));
-                        }
-
-                        Err(Error::new(
-                            ErrorKind::IdNotFound,
-                            format!("category id {} does not exist", category.id).as_str(),
-                        ))
-                    }
-                }
+                Ok(())
             }
-            Err(error) => Err(Error::new(ErrorKind::FailedToBorrowCategory,
-                                         format!("failed to borrow category: {}", error).as_str())),
+            None => {
+                if self.found_entries.contains_key(id) {
+                    return Err(Error::new(
+                        ErrorKind::DuplicatedId,
+                        format!("duplicated category id {}", id).as_str(),
+                    ));
+                }
+
+                Err(Error::new(
+                    ErrorKind::IdNotFound,
+                    format!("category id {} does not exist", id).as_str(),
+                ))
+            }
         }
     }
 

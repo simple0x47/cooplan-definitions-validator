@@ -1,12 +1,13 @@
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
 
+use crate::categories::category::Category;
 use crate::categories::category_id_tracker::{CategoryEntry, CategoryIdTracker};
 use crate::categories::category_id_tracker_file_io::CategoryIdTrackerFileIO;
 use crate::categories::category_id_tracker_io::CategoryIdTrackerIO;
-use crate::categories::in_memory_category::InMemoryCategory;
 use crate::categories::validations::validation::Validation;
 use crate::error::{Error, ErrorKind};
 
@@ -17,12 +18,15 @@ impl IdTrackingValidation {
         IdTrackingValidation {}
     }
 
-    fn track_category(&self, category_pointer: &Rc<RefCell<InMemoryCategory>>, category_id_tracker: &mut CategoryIdTracker)
-                      -> Result<(), Error> {
-        match category_id_tracker.track_category(category_pointer) {
-            Ok(_) => {
-                match category_pointer.try_borrow() {
-                    Ok(category) => {
+    fn track_category(
+        &self,
+        category_pointer: &Rc<RefCell<Category>>,
+        category_id_tracker: &mut CategoryIdTracker,
+    ) -> Result<(), Error> {
+        match category_pointer.try_borrow() {
+            Ok(category) => {
+                match category_id_tracker.track_category(category.id.clone().as_str()) {
+                    Ok(_) => {
                         for child_pointer in category.children.as_slice() {
                             match self.track_category(child_pointer, category_id_tracker) {
                                 Ok(_) => (),
@@ -32,18 +36,21 @@ impl IdTrackingValidation {
 
                         Ok(())
                     }
-                    Err(error) => Err(Error::new(ErrorKind::FailedToBorrowCategory,
-                                                 format!("failed to borrow category: {}", error).as_str())),
+                    Err(error) => Err(error),
                 }
             }
-            Err(error) => Err(error),
+            Err(error) => Err(Error::new(
+                ErrorKind::FailedToBorrowCategory,
+                format!("failed to borrow category: {}", error).as_str(),
+            )),
         }
     }
 }
 
 impl Validation for IdTrackingValidation {
-    fn validate(&self, root_categories: &[Rc<RefCell<InMemoryCategory>>]) -> Result<(), Error> {
-        let category_id_tracker_io: Box<dyn CategoryIdTrackerIO> = Box::new(CategoryIdTrackerFileIO::new());
+    fn validate(&self, root_categories: &[Rc<RefCell<Category>>]) -> Result<(), Error> {
+        let category_id_tracker_io: Box<dyn CategoryIdTrackerIO> =
+            Box::new(CategoryIdTrackerFileIO::new());
 
         match category_id_tracker_io.read_entries() {
             Ok(category_entries) => {
@@ -61,8 +68,10 @@ impl Validation for IdTrackingValidation {
                     Err(error) => Err(error),
                 }
             }
-            Err(error) => Err(Error::new(ErrorKind::FailedToReadCategories,
-                                         format!("failed to read categories: {}", error).as_str())),
+            Err(error) => Err(Error::new(
+                ErrorKind::FailedToReadCategory,
+                format!("failed to read categories: {}", error).as_str(),
+            )),
         }
     }
 }

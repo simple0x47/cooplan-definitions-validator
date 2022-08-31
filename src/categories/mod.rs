@@ -5,6 +5,5 @@ pub mod category_id_tracker;
 pub mod category_id_tracker_file_io;
 pub mod category_id_tracker_io;
 pub mod category_io;
-pub mod category_validator;
+pub mod source_category;
 pub mod validations;
-pub mod in_memory_category;
