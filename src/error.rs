@@ -5,6 +5,7 @@ pub enum ErrorKind {
     MissingId,
     IdNotFound,
     DuplicatedId,
+    DuplicatedName,
     TypeChanged,
     IdNotTracked,
     CannotOverrideId,
@@ -14,7 +15,7 @@ pub enum ErrorKind {
     LastCategoryNotSelectable,
     ParentNotAvailable,
     FailedToBorrowCategory,
-    FailedToReadCategories,
+    FailedToReadCategory,
     FailedToTrackCategory,
 }
 
@@ -26,7 +27,10 @@ pub struct Error {
 
 impl Error {
     pub fn new(kind: ErrorKind, message: &str) -> Error {
-        Error { kind, message: message.to_string() }
+        Error {
+            kind,
+            message: message.to_string(),
+        }
     }
 
     pub fn kind(&self) -> ErrorKind {

@@ -1,6 +1,8 @@
 use std::borrow::Borrow;
+use std::cell::RefCell;
+use std::rc::Rc;
 
-use crate::categories::in_memory_category::InMemoryCategory;
+use crate::categories::category::Category;
 
 #[cfg(test)]
 #[test]
@@ -8,11 +10,12 @@ fn error_on_setting_random_id_to_category_with_id() {
     use crate::categories::category_id_generator::set_random_id;
     use crate::error::ErrorKind;
 
-    use crate::categories::category::Category;
+    use crate::categories::source_category::SourceCategory;
 
-    let first_category: Category = Category {
+    let mut first_category: SourceCategory = SourceCategory {
         id: Some("ABCD".to_string()),
         parent: None,
+        parent_name: None,
         name: "First".to_string(),
         selectable_as_last: Some(false),
         attributes: Vec::new(),
@@ -20,7 +23,7 @@ fn error_on_setting_random_id_to_category_with_id() {
 
     assert_eq!(
         ErrorKind::CannotOverrideId,
-        set_random_id(first_category).unwrap_err().kind()
+        set_random_id(&mut first_category).unwrap_err().kind()
     );
 }
 
@@ -29,39 +32,45 @@ fn unique_random_id_constraint() {
     use std::collections::HashMap;
 
     use crate::categories::{
-        category::Category, category_id_generator::set_random_id,
-        category_id_tracker::CategoryEntry, category_id_tracker::CategoryIdTracker,
+        category_id_generator::set_random_id, category_id_tracker::CategoryEntry,
+        category_id_tracker::CategoryIdTracker, source_category::SourceCategory,
     };
 
     let mut entries: HashMap<String, CategoryEntry> = HashMap::new();
-    let mut categories: Vec<Category> = Vec::new();
+    let mut categories: Vec<Rc<RefCell<Category>>> = Vec::new();
 
     for i in 0..1000 {
-        let category: Category = Category {
+        let mut category: SourceCategory = SourceCategory {
             id: None,
             parent: None,
+            parent_name: None,
             name: format!("{}", i),
             selectable_as_last: Some(false),
             attributes: Vec::new(),
         };
 
-        let category_with_id = set_random_id(category).unwrap();
-        let category_id = category_with_id.id.clone().unwrap();
+        set_random_id(&mut category).unwrap();
 
+        let id = category.id.clone().unwrap();
         let entry: CategoryEntry = CategoryEntry {
-            id: category_id.clone(),
+            id: category.id.clone().unwrap(),
         };
 
-        entries.insert(category_id.clone(), entry);
-        categories.push(category_with_id);
+        entries.insert(id.clone(), entry);
+        categories.push(Category::new(
+            id.clone(),
+            category.name,
+            category.selectable_as_last.unwrap_or(false),
+            category.attributes,
+        ));
     }
 
     let mut id_tracker: CategoryIdTracker = CategoryIdTracker::new(entries);
 
     for category in categories {
-        let category_pointer = InMemoryCategory::new(category.id.unwrap(), category.name,
-                                                     category.selectable_as_last.unwrap());
-        id_tracker.track_category(category_pointer.borrow()).unwrap();
+        id_tracker
+            .track_category(category.try_borrow().unwrap().id.as_str())
+            .unwrap();
     }
 
     id_tracker.close().unwrap();

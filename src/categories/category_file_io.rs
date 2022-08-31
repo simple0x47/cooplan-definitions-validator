@@ -1,8 +1,15 @@
+use std::borrow::Borrow;
+use std::cell::RefCell;
 use std::fs::DirEntry;
 use std::io::{Error, ErrorKind};
+use std::ops::Deref;
+use std::rc::Rc;
 
 use crate::categories::category::Category;
 use crate::categories::category_io::CategoryIO;
+use crate::categories::source_category::SourceCategory;
+
+const CATEGORIES_DIRECTORY: &str = "./categories/";
 
 /// Abstract wrapping of a file containing the definition of a category.
 pub struct CategoryFileIO {
@@ -22,7 +29,7 @@ impl CategoryFileIO {
 }
 
 impl CategoryIO for CategoryFileIO {
-    fn read(&mut self) -> Result<Category, Error> {
+    fn read(&mut self) -> Result<SourceCategory, Error> {
         match std::fs::read_to_string(self.path.clone()) {
             Ok(json_category) => match serde_json::de::from_str(json_category.as_str()) {
                 Ok(category) => {
@@ -36,20 +43,43 @@ impl CategoryIO for CategoryFileIO {
         }
     }
 
-    fn write(&self, category: &Category) -> Result<(), Error> {
-        match serde_json::to_string_pretty(category) {
+    fn write(&self, category: Rc<RefCell<Category>>) -> Result<(), Error> {
+        match serde_json::to_string_pretty("a") {
             Ok(json_category) => std::fs::write(self.path.clone(), json_category),
             Err(error) => {
                 return Err(Error::new(ErrorKind::InvalidData, format!("{}", error)));
             }
         }
     }
+
+    fn parent_name(&self) -> Result<Option<String>, Error> {
+        let a = 5;
+        let strin = self.path.clone();
+
+        let res = strin.trim_start_matches(CATEGORIES_DIRECTORY);
+        let split: Vec<&str> = res.split("/").collect();
+
+        let mut prev_file: usize = 0;
+        for s in split.as_slice() {
+            if s.contains(".json") {
+                break;
+            }
+
+            prev_file += 1;
+        }
+
+        if prev_file > 0 {
+            return Ok(Some(split.get(prev_file - 1).unwrap().to_string()));
+        }
+
+        Ok(None)
+    }
 }
 
-fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
+fn build_for_path(path: &str) -> Result<Vec<Box<dyn CategoryIO>>, Error> {
     const CATEGORY_FILE_EXTENSION: &str = ".json";
 
-    let mut categories_files_io: Vec<CategoryFileIO> = Vec::new();
+    let mut categories_files_io: Vec<Box<dyn CategoryIO>> = Vec::new();
     match std::fs::read_dir(path) {
         Ok(read) => {
             let mut directories: Vec<DirEntry> = Vec::new();
@@ -62,10 +92,8 @@ fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
                         Some(path) => {
                             if file_type.is_dir() {
                                 directories.push(entry);
-                            } else {
-                                if path.ends_with(CATEGORY_FILE_EXTENSION) {
-                                    categories_files_io.push(CategoryFileIO::new(path));
-                                }
+                            } else if path.ends_with(CATEGORY_FILE_EXTENSION) {
+                                categories_files_io.push(Box::new(CategoryFileIO::new(path)));
                             }
                         }
                         None => {
@@ -103,7 +131,7 @@ fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
                     None => {
                         return Err(Error::new(
                             ErrorKind::InvalidData,
-                            format!("failed to retrieve path of directory"),
+                            "failed to retrieve path of directory".to_string(),
                         ));
                     }
                 }
@@ -121,8 +149,6 @@ fn build_for_path(path: &str) -> Result<Vec<CategoryFileIO>, Error> {
 ///
 /// `Ok`: vector containing instances of `CategoryFileIO` for each category definition file that has been found.
 /// `Err`: error detailing why the function has failed.
-pub fn build_for_all_categories() -> Result<Vec<CategoryFileIO>, Error> {
-    const CATEGORIES_DIRECTORY: &str = "./categories/";
-
+pub fn build_for_all_categories() -> Result<Vec<Box<dyn CategoryIO>>, Error> {
     build_for_path(CATEGORIES_DIRECTORY)
 }
