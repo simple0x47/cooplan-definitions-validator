@@ -106,24 +106,27 @@ impl Validator {
         source_categories: &mut Vec<SourceCategory>,
     ) -> Result<(), Error> {
         for mut source_category in source_categories {
-            match set_random_id(&mut source_category) {
-                Ok(_) => {
-                    if source_category.id.is_none() {
-                        return Err(Error::new(
-                            ErrorKind::MissingId,
-                            "category is missing id after setting a random one",
-                        ));
-                    }
+            match &source_category.id {
+                Some(_) => (),
+                None => match set_random_id(&mut source_category) {
+                    Ok(_) => {
+                        if source_category.id.is_none() {
+                            return Err(Error::new(
+                                ErrorKind::MissingId,
+                                "category is missing id after setting a random one",
+                            ));
+                        }
 
-                    match self.link_name_with_id(
-                        source_category.name.as_str(),
-                        source_category.id.as_ref().unwrap().as_str(),
-                    ) {
-                        Ok(_) => (),
-                        Err(error) => return Err(error),
+                        match self.link_name_with_id(
+                            source_category.name.as_str(),
+                            source_category.id.as_ref().unwrap().as_str(),
+                        ) {
+                            Ok(_) => (),
+                            Err(error) => return Err(error),
+                        }
                     }
-                }
-                Err(error) => return Err(error),
+                    Err(error) => return Err(error),
+                },
             }
         }
 

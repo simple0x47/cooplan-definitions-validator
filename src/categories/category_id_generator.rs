@@ -21,7 +21,7 @@ pub fn set_random_id(source_category: &mut SourceCategory) -> Result<(), Error> 
     match source_category.id {
         Some(_) => Err(Error::new(
             ErrorKind::CannotOverrideId,
-            "Category already has an id",
+            format!("category '{}' already has an id", source_category.name).as_str(),
         )),
         None => {
             let id = Uuid::new_v4();
