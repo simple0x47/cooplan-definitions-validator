@@ -1,11 +1,8 @@
-use std::borrow::Borrow;
 use std::cell::RefCell;
-use std::collections::HashMap;
-use std::ops::Deref;
 use std::rc::Rc;
 
 use crate::categories::category::Category;
-use crate::categories::category_id_tracker::{CategoryEntry, CategoryIdTracker};
+use crate::categories::category_id_tracker::CategoryIdTracker;
 use crate::categories::category_id_tracker_file_io::CategoryIdTrackerFileIO;
 use crate::categories::category_id_tracker_io::CategoryIdTrackerIO;
 use crate::categories::validations::validation::Validation;
