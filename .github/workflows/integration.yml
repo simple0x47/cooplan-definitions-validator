@@ -10,6 +10,7 @@ env:
 
 jobs:
   test:
+    name: integration
 
     runs-on: ubuntu-latest
 
