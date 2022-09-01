@@ -34,8 +34,6 @@ jobs:
     - name: Move definitions
       run: |
         mv ./definitions/* ./ 
-    - name: Run tests with current categories
-      run: cargo test --verbose
     - name: Run validator on current categories
       run: |
         cargo build --release
