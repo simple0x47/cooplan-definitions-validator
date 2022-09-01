@@ -16,7 +16,9 @@ pub enum ErrorKind {
     ParentNotAvailable,
     FailedToBorrowCategory,
     FailedToReadCategory,
+    FailedToWriteCategory,
     FailedToTrackCategory,
+    MissingCategoryIO,
 }
 
 #[derive(Debug)]

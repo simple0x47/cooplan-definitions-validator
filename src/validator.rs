@@ -5,6 +5,7 @@ use std::rc::Rc;
 use crate::categories::category::Category;
 use crate::categories::category_file_io::build_for_all_categories;
 use crate::categories::category_id_generator::set_random_id;
+use crate::categories::category_io::CategoryIO;
 use crate::categories::source_category::SourceCategory;
 use crate::categories::validations::id_tracking_validation::IdTrackingValidation;
 use crate::categories::validations::selectable_as_last_validation::SelectableAsLastValidation;
@@ -13,6 +14,7 @@ use crate::error::{Error, ErrorKind};
 
 pub struct Validator {
     name_id_links: HashMap<String, String>,
+    categories_io: HashMap<String, Box<dyn CategoryIO>>,
     categories_mapping: HashMap<String, Rc<RefCell<Category>>>,
     root_categories: Vec<Rc<RefCell<Category>>>,
 }
@@ -21,6 +23,7 @@ impl Validator {
     pub fn new() -> Validator {
         Validator {
             name_id_links: HashMap::new(),
+            categories_io: HashMap::new(),
             categories_mapping: HashMap::new(),
             root_categories: Vec::new(),
         }
@@ -58,26 +61,31 @@ impl Validator {
 
                 for mut category_io in categories_io {
                     match category_io.read() {
-                        Ok(source_category) => match source_category.id.clone() {
-                            Some(id) => {
-                                category_pointers.push(Category::new(
-                                    id.clone(),
-                                    source_category.name.clone(),
-                                    false,
-                                    source_category.attributes.clone(),
-                                ));
+                        Ok(source_category) => {
+                            match source_category.id.clone() {
+                                Some(id) => {
+                                    category_pointers.push(Category::new(
+                                        id.clone(),
+                                        source_category.name.clone(),
+                                        false,
+                                        source_category.attributes.clone(),
+                                    ));
 
-                                match self
-                                    .link_name_with_id(source_category.name.as_str(), id.as_str())
-                                {
-                                    Ok(_) => (),
-                                    Err(error) => return Err(error),
+                                    match self.link_name_with_id(
+                                        source_category.name.as_str(),
+                                        id.as_str(),
+                                    ) {
+                                        Ok(_) => (),
+                                        Err(error) => return Err(error),
+                                    }
                                 }
-
-                                source_categories.push(source_category);
+                                None => (),
                             }
-                            None => (),
-                        },
+
+                            self.categories_io
+                                .insert(source_category.name.clone(), category_io);
+                            source_categories.push(source_category);
+                        }
                         Err(error) => {
                             return Err(Error::new(
                                 ErrorKind::FailedToReadCategory,
@@ -221,12 +229,71 @@ impl Validator {
         selectable.validate(self.root_categories.as_slice())
     }
 
+    fn apply_changes(&mut self) -> Result<(), Error> {
+        for root_category in self.root_categories.as_slice() {
+            match self.apply_changes_for_category(root_category) {
+                Ok(_) => (),
+                Err(error) => return Err(error),
+            }
+        }
+
+        Ok(())
+    }
+
+    fn apply_changes_for_category(&self, category: &Rc<RefCell<Category>>) -> Result<(), Error> {
+        match category.try_borrow() {
+            Ok(borrowed_category) => {
+                match self.categories_io.get(&borrowed_category.name.clone()) {
+                    Some(category_io) => match category_io.write(category) {
+                        Ok(_) => (),
+                        Err(error) => {
+                            return Err(Error::new(
+                                ErrorKind::FailedToWriteCategory,
+                                format!(
+                                    "failed to write category '{}' with id '{}': {}",
+                                    borrowed_category.name, borrowed_category.id, error
+                                )
+                                .as_str(),
+                            ))
+                        }
+                    },
+                    None => {
+                        return Err(Error::new(
+                            ErrorKind::MissingCategoryIO,
+                            format!(
+                                "category '{}' with id '{}' has no category io mapped",
+                                borrowed_category.name, borrowed_category.id
+                            )
+                            .as_str(),
+                        ))
+                    }
+                }
+
+                for child_category in borrowed_category.children.as_slice() {
+                    match self.apply_changes_for_category(child_category) {
+                        Ok(_) => (),
+                        Err(error) => return Err(error),
+                    }
+                }
+
+                Ok(())
+            }
+            Err(error) => Err(Error::new(
+                ErrorKind::FailedToBorrowCategory,
+                format!("failed to borrow category: {}", error).as_str(),
+            )),
+        }
+    }
+
     pub fn validate(&mut self) -> Result<(), Error> {
         match self.track_existing_ids() {
             Ok(mut source_categories) => {
                 match self.generate_ids_for_new_categories(&mut source_categories) {
                     Ok(_) => match self.map_source_categories(source_categories) {
-                        Ok(_) => self.selectable_as_last_validation(),
+                        Ok(_) => match self.selectable_as_last_validation() {
+                            Ok(_) => self.apply_changes(),
+                            Err(error) => Err(error),
+                        },
                         Err(error) => Err(error),
                     },
                     Err(error) => Err(error),

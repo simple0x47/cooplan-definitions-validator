@@ -1,8 +1,6 @@
-use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::fs::DirEntry;
 use std::io::{Error, ErrorKind};
-use std::ops::Deref;
 use std::rc::Rc;
 
 use crate::categories::category::Category;
@@ -43,20 +41,50 @@ impl CategoryIO for CategoryFileIO {
         }
     }
 
-    fn write(&self, category: Rc<RefCell<Category>>) -> Result<(), Error> {
-        match serde_json::to_string_pretty("a") {
-            Ok(json_category) => std::fs::write(self.path.clone(), json_category),
+    fn write(&self, category: &Rc<RefCell<Category>>) -> Result<(), Error> {
+        match category.try_borrow() {
+            Ok(borrow) => {
+                let source_category = match &borrow.parent {
+                    Some(parent) => SourceCategory {
+                        id: Some(borrow.id.clone()),
+                        parent: Some(parent.upgrade().unwrap().try_borrow().unwrap().id.clone()),
+                        parent_name: Some(
+                            parent.upgrade().unwrap().try_borrow().unwrap().name.clone(),
+                        ),
+                        name: borrow.name.clone(),
+                        selectable_as_last: Some(borrow.selectable_as_last),
+                        attributes: borrow.attributes.clone(),
+                    },
+                    None => SourceCategory {
+                        id: Some(borrow.id.clone()),
+                        parent: None,
+                        parent_name: None,
+                        name: borrow.name.clone(),
+                        selectable_as_last: Some(borrow.selectable_as_last),
+                        attributes: borrow.attributes.clone(),
+                    },
+                };
+
+                match serde_json::to_string_pretty(&source_category) {
+                    Ok(json_category) => std::fs::write(self.path.clone(), json_category),
+                    Err(error) => {
+                        return Err(Error::new(ErrorKind::InvalidData, format!("{}", error)));
+                    }
+                }
+            }
             Err(error) => {
-                return Err(Error::new(ErrorKind::InvalidData, format!("{}", error)));
+                return Err(Error::new(
+                    ErrorKind::Interrupted,
+                    format!("failed to borrow category: {}", error),
+                ))
             }
         }
     }
 
     fn parent_name(&self) -> Result<Option<String>, Error> {
-        let a = 5;
-        let strin = self.path.clone();
+        let path = self.path.clone();
 
-        let res = strin.trim_start_matches(CATEGORIES_DIRECTORY);
+        let res = path.trim_start_matches(CATEGORIES_DIRECTORY);
         let split: Vec<&str> = res.split("/").collect();
 
         let mut prev_file: usize = 0;
@@ -113,7 +141,7 @@ fn build_for_path(path: &str) -> Result<Vec<Box<dyn CategoryIO>>, Error> {
                         match build_for_path(path) {
                             Ok(mut child_categories_files_io) => {
                                 let current_size = categories_files_io.len();
-                                let child_size = categories_files_io.len();
+                                let child_size = child_categories_files_io.len();
 
                                 // Detect overflows.
                                 if current_size.checked_add(child_size).is_none() {
