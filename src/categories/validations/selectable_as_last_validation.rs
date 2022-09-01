@@ -27,7 +27,8 @@ impl SelectableAsLastValidation {
                     return Err(Error::new(
                         ErrorKind::LastCategoryNotSelectable,
                         format!(
-                            "category '{}' has no children and it is not selectable as last",
+                            "category '{}' with id '{}' has no children and it is not selectable as last",
+                            category.name,
                             category.id
                         )
                         .as_str(),
