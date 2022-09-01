@@ -1,0 +1,36 @@
+name: Integration Test
+
+on:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout validator
+      uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Remove example categories
+      run: rm -rf ./categories
+    - name: Checkout categories
+      uses: actions/checkout@v3
+      with:
+        repository: simple0x47/cooplan-definitions
+        token: ${{ secrets.GH_PAT }}
+        path: categories
+    - name: Run tests with current categories
+      run: cargo test --verbose
+    - name: Run validator on current categories
+      run: |
+        cargo build --release
+        mv ./target/release/cooplan-definitions-validator ./
+        chmod +x ./cooplan-definitions-validator
+        ./cooplan-definitions-validator
