@@ -29,8 +29,11 @@ jobs:
       with:
         repository: simple0x47/cooplan-definitions
         token: ${{ secrets.GH_PAT }}
-        path: ./
+        path: definitions
         ref: main
+    - name: Move definitions
+      run: |
+        mv ./definitions/* ./ 
     - name: Run tests with current categories
       run: cargo test --verbose
     - name: Run validator on current categories
