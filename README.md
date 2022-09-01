@@ -1,1 +1,2 @@
+[![Integration Test](https://github.com/simple0x47/cooplan-definitions-validator/actions/workflows/integration.yml/badge.svg)](https://github.com/simple0x47/cooplan-definitions-validator/actions/workflows/integration.yml)
 [![Release](https://github.com/simple0x47/cooplan-definitions-validator/actions/workflows/release.yml/badge.svg?event=push)](https://github.com/simple0x47/cooplan-definitions-validator/actions/workflows/release.yml)
