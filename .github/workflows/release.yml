@@ -12,11 +12,14 @@ env:
 
 jobs:
   release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     
     runs-on: ubuntu-latest
 
     steps:
+    - name: Exit if build not successful
+      if: ${{ github.event.workflow_run.conclusion != 'success' }}
+      run: |
+        exit 1
     - uses: actions/checkout@v3
     - name: Run tests
       run: cargo test --verbose
@@ -55,3 +58,4 @@ jobs:
         asset_path: ./config.json
         asset_name: config.json
         asset_content_type: application/json
+    
