@@ -20,13 +20,16 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: Remove example categories
-      run: rm -rf ./categories
+      run: |
+        rm -rf ./categories
+        rm -f attribute_id_tracker.csv
+        rm -f category_id_tracker.csv
     - name: Checkout categories
       uses: actions/checkout@v3
       with:
         repository: simple0x47/cooplan-definitions
         token: ${{ secrets.GH_PAT }}
-        path: categories
+        path: ./
         ref: main
     - name: Run tests with current categories
       run: cargo test --verbose
