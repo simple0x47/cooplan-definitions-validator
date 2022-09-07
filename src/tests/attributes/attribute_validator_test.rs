@@ -20,6 +20,7 @@ fn detects_incorrect_data_type() {
         data_type: "lol".to_string(),
         name: "Invalid Attribute".to_string(),
         unit: None,
+        optional: None,
     };
 
     assert_eq!(
@@ -49,6 +50,7 @@ fn validates_correctly_a_valid_attribute() {
         data_type: "numeric".to_string(),
         name: "Valid Attribute".to_string(),
         unit: None,
+        optional: Some(false),
     };
 
     attribute_validator

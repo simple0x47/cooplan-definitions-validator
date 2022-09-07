@@ -13,6 +13,7 @@ fn error_no_id_attribute() {
         name: "".to_string(),
         data_type: "".to_string(),
         unit: None,
+        optional: Some(false),
     };
 
     assert_eq!(
@@ -36,6 +37,7 @@ fn error_id_attribute_not_found() {
         name: "".to_string(),
         data_type: "".to_string(),
         unit: None,
+        optional: Some(false),
     };
 
     assert_eq!(
@@ -65,12 +67,14 @@ fn error_duplicated_id_attribute() {
         name: "First".to_string(),
         data_type: "".to_string(),
         unit: None,
+        optional: Some(false),
     };
     let second_attribute: Attribute = Attribute {
         id: Some("ABCD".to_string()),
         name: "Second".to_string(),
         data_type: "".to_string(),
         unit: None,
+        optional: Some(false),
     };
 
     id_tracker.track_attribute(&first_attribute).unwrap();
@@ -134,12 +138,14 @@ fn id_comparison_is_correct() {
         name: "First".to_string(),
         data_type: "".to_string(),
         unit: None,
+        optional: Some(false),
     };
     let second_attribute: Attribute = Attribute {
         id: Some("ABCD".to_string()),
         name: "Second".to_string(),
         data_type: "".to_string(),
         unit: None,
+        optional: Some(false),
     };
 
     id_tracker.track_attribute(&first_attribute).unwrap();
@@ -174,6 +180,7 @@ fn track_and_close_successfully() {
         name: "First".to_string(),
         data_type: "".to_string(),
         unit: None,
+        optional: Some(false),
     };
 
     id_tracker.track_attribute(&first_attribute).unwrap();
@@ -201,6 +208,7 @@ fn error_on_changing_type() {
         name: "First".to_string(),
         data_type: "float".to_string(),
         unit: None,
+        optional: Some(false),
     };
 
     assert_eq!(

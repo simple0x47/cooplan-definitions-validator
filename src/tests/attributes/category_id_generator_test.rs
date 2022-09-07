@@ -10,6 +10,7 @@ fn error_on_setting_random_id_to_attribute_with_id() {
         name: "First".to_string(),
         data_type: "float".to_string(),
         unit: None,
+        optional: Some(false),
     };
 
     assert_eq!(
@@ -36,6 +37,7 @@ fn unique_random_id_constraint() {
             name: format!("{}", i),
             data_type: "float".to_string(),
             unit: None,
+            optional: Some(false),
         };
 
         let attribute_with_id = set_random_id(attribute).unwrap();

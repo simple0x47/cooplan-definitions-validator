@@ -6,4 +6,5 @@ pub struct Attribute {
     pub name: String,
     pub data_type: String,
     pub unit: Option<String>,
+    pub optional: Option<bool>,
 }
