@@ -19,6 +19,14 @@ pub enum ErrorKind {
     FailedToWriteCategory,
     FailedToTrackCategory,
     MissingCategoryIO,
+    FailedToReadAttribute,
+    FailedToWriteAttribute,
+    FailedToBorrowAttribute,
+    FailedToBorrowAttributeTracker,
+    FailedToBorrowAttributeValidation,
+    FailedDataTypeAttributeValidation,
+    FailedDataTypeConstantAttributeValidation,
+    FailedToReadConfig,
 }
 
 #[derive(Debug)]

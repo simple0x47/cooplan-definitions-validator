@@ -1,23 +1,21 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::attributes::attribute::Attribute;
 use crate::error::{Error, ErrorKind};
 
-pub struct AttributeEntry {
-    pub id: String,
-    pub attribute_type: String,
-}
+use super::attribute_tracker_io::AttributeEntry;
+
+static mut instance: Option<Rc<RefCell<AttributeIdTracker>>> = None;
 
 pub struct AttributeIdTracker {
     entries: HashMap<String, AttributeEntry>,
-    found_entries: HashMap<String, AttributeEntry>,
+    found_entries: Vec<String>,
 }
 
 impl AttributeIdTracker {
-    pub fn new(entries: HashMap<String, AttributeEntry>) -> AttributeIdTracker {
+    pub fn new(entries: &HashMap<String, AttributeEntry>) -> AttributeIdTracker {
         AttributeIdTracker {
-            entries,
-            found_entries: HashMap::new(),
+            entries: HashMap::clone(entries),
+            found_entries: Vec::new(),
         }
     }
 
@@ -28,51 +26,32 @@ impl AttributeIdTracker {
     /// * `MissingId` - if the attribute has no id.
     /// * `IdNotFound`- if the attribute's id could not be found.
     /// * `DuplicatedId` - if the attribute's id is duplicated.
-    /// * `TypeChanged` - if the attribute's type has been changed.
     ///
     /// # Arguments
     ///
     /// * `attribute` - Attribute whose id is going to be tracked.
-    pub fn track_attribute(&mut self, attribute: &Attribute) -> Result<(), Error> {
-        match &attribute.id {
-            Some(id) => {
-                let entry = self.entries.remove(id);
+    pub fn track_attribute(&mut self, id: &str) -> Result<(), Error> {
+        let entry = self.entries.remove(id);
 
-                match entry {
-                    Some(entry) => {
-                        if entry.attribute_type != attribute.data_type {
-                            return Err(Error::new(
-                                ErrorKind::TypeChanged,
-                                format!(
-                                    "Expected attribute with type {} but found {}",
-                                    entry.attribute_type, attribute.data_type
-                                ).as_str(),
-                            ));
-                        }
+        match entry {
+            Some(entry) => {
+                self.found_entries.push(id.to_string());
 
-                        self.found_entries.insert(id.to_string(), entry);
-
-                        Ok(())
-                    }
-                    None => {
-                        if self.found_entries.contains_key(id) {
-                            return Err(Error::new(
-                                ErrorKind::DuplicatedId,
-                                format!("Duplicated attribute id {}", id).as_str(),
-                            ));
-                        }
-
-                        Err(Error::new(
-                            ErrorKind::IdNotFound,
-                            format!("Attribute with id {} does not exist", id).as_str(),
-                        ))
-                    }
-                }
+                Ok(())
             }
-            None => Err(Error::new(
-                ErrorKind::MissingId,
-                "Attribute has no id".to_string().as_str(),
-            )),
+            None => {
+                if self.found_entries.contains(&id.to_string()) {
+                    return Err(Error::new(
+                        ErrorKind::DuplicatedId,
+                        format!("duplicated attribute id {}", id).as_str(),
+                    ));
+                }
+
+                Err(Error::new(
+                    ErrorKind::IdNotFound,
+                    format!("attribute with id {} does not exist", id).as_str(),
+                ))
+            }
         }
     }
 
@@ -96,7 +75,7 @@ impl AttributeIdTracker {
 
         Err(Error::new(
             ErrorKind::IdNotTracked,
-            format!("Some attribute ids were not tracked: {}", missing_ids).as_str(),
+            format!("some attribute ids were not tracked: {}", missing_ids).as_str(),
         ))
     }
 }
