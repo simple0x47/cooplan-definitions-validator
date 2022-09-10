@@ -1,10 +1,8 @@
-use std::option;
-
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
 
-use super::attribute::{self, Attribute};
+use super::attribute::Attribute;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SourceAttribute {

@@ -1,10 +1,8 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::collections::HashMap;
 
 use crate::error::{Error, ErrorKind};
 
 use super::attribute_tracker_io::AttributeEntry;
-
-static mut instance: Option<Rc<RefCell<AttributeIdTracker>>> = None;
 
 pub struct AttributeIdTracker {
     entries: HashMap<String, AttributeEntry>,
@@ -34,7 +32,7 @@ impl AttributeIdTracker {
         let entry = self.entries.remove(id);
 
         match entry {
-            Some(entry) => {
+            Some(_) => {
                 self.found_entries.push(id.to_string());
 
                 Ok(())

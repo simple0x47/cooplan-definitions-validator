@@ -2,9 +2,8 @@ use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::attributes::attribute_id_tracker::AttributeIdTracker;
 use crate::attributes::attribute_tracker_file_io::AttributeTrackerFileIO;
-use crate::attributes::attribute_tracker_io::{self, AttributeEntry, AttributeTrackerIO};
+use crate::attributes::attribute_tracker_io::{AttributeEntry, AttributeTrackerIO};
 use crate::attributes::source_attribute::SourceAttribute;
 use crate::attributes::validations::data_type_constant_validation::DataTypeConstantValidation;
 use crate::attributes::validations::data_type_validation::DataTypeValidation;
