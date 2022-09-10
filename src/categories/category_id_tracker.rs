@@ -1,10 +1,6 @@
-use std::cell::RefCell;
 use std::collections::HashMap;
 
-use crate::categories::category::Category;
 use crate::error::{Error, ErrorKind};
-
-use super::source_category::SourceCategory;
 
 pub struct CategoryEntry {
     pub id: String,

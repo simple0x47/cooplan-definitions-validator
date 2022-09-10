@@ -1,10 +1,10 @@
+#[cfg(test)]
 use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::attributes::source_attribute::SourceAttribute;
 use crate::categories::category::Category;
 
-#[cfg(test)]
 #[test]
 fn error_on_setting_random_id_to_category_with_id() {
     use crate::categories::category_id_generator::set_random_id;

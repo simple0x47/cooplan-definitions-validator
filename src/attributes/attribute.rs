@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::source_attribute::SourceAttribute;
 
+/// Complete, in-memory attribute.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Attribute {
     pub id: String,

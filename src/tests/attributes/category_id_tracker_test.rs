@@ -1,6 +1,6 @@
+#[cfg(test)]
 use crate::attributes::attribute_tracker_io::AttributeEntry;
 
-#[cfg(test)]
 #[test]
 fn error_id_attribute_not_found() {
     use crate::attributes::attribute_tracker_io::AttributeEntry;

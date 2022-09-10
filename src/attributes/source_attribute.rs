@@ -1,11 +1,10 @@
-use std::option;
-
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
 
-use super::attribute::{self, Attribute};
+use super::attribute::Attribute;
 
+/// Partial or full, input based attribute.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SourceAttribute {
     pub id: Option<String>,

@@ -4,6 +4,7 @@ use std::rc::{Rc, Weak};
 use crate::attributes::attribute::Attribute;
 use crate::error::{Error, ErrorKind};
 
+/// Full, in-memory category.
 #[derive(Debug, Clone)]
 pub struct Category {
     pub id: String,

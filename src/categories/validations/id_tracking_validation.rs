@@ -8,6 +8,7 @@ use crate::categories::category_id_tracker_io::CategoryIdTrackerIO;
 use crate::categories::validations::validation::Validation;
 use crate::error::{Error, ErrorKind};
 
+/// Validates there are no missing IDs.
 pub struct IdTrackingValidation {}
 
 impl IdTrackingValidation {

@@ -7,6 +7,7 @@ use crate::{
 
 use super::validation::Validation;
 
+/// Validates whether an attribute's data type has changed since it was created.
 pub struct DataTypeConstantValidation {
     expected_data_types: HashMap<String, String>,
     failed_validations: Vec<Error>,

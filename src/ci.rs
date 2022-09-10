@@ -2,9 +2,8 @@ use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::attributes::attribute_id_tracker::AttributeIdTracker;
 use crate::attributes::attribute_tracker_file_io::AttributeTrackerFileIO;
-use crate::attributes::attribute_tracker_io::{self, AttributeEntry, AttributeTrackerIO};
+use crate::attributes::attribute_tracker_io::{AttributeEntry, AttributeTrackerIO};
 use crate::attributes::source_attribute::SourceAttribute;
 use crate::attributes::validations::data_type_constant_validation::DataTypeConstantValidation;
 use crate::attributes::validations::data_type_validation::DataTypeValidation;
@@ -26,6 +25,21 @@ use crate::error::{Error, ErrorKind};
 
 const CONFIG_FILE_PATH: &str = "./config.json";
 
+/// (C)ontinuous (I)ntegration tool that provides means for integrating and validating changes for
+/// product's definitions.
+///
+/// Currently, the following features are offered:
+///
+/// * Categories:
+///     * ID generation - new categories are automatically assigned a new id.
+///     * ID tracking - categories cannot be removed, therefore assuring backwards compatibility at all times.
+/// * Attributes:
+///     * ID generation - new attributes are automatically assigned a new id.
+///     * ID tracking - attributes cannot be removed, therefore assuring backwards compatibility at all times.
+///     * Data type validation - assure attributes have valid and recognizable data types specified within a
+/// configuration file.
+///     * Data constant validation - assure attributes do not change their data type.
+/// (todo: allow compatible data type changes)
 pub struct CI {
     config: Config,
     name_id_links: HashMap<String, String>,
@@ -541,6 +555,12 @@ impl CI {
         }
     }
 
+    /// CI logic:
+    ///
+    /// 1. Read categories from .json files within the 'categories' directory.
+    /// 2. Generate new ids for each category that has not an id.
+    /// 3. Write the new ids into the tracking files and within the corresponding .json files.
+    /// 4. Validate the current state of all categories.
     pub fn run_ci_logic(&mut self) -> Result<(), Error> {
         match self.read_source_categories() {
             Ok(mut source_categories) => match self.generate_ids(&mut source_categories) {

@@ -1,6 +1,6 @@
+#[cfg(test)]
 use crate::attributes::attribute_tracker_io::AttributeEntry;
 
-#[cfg(test)]
 #[test]
 fn error_on_setting_random_id_to_attribute_with_id() {
     use crate::error::ErrorKind;

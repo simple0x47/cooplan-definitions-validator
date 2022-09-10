@@ -1,9 +1,5 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use uuid::Uuid;
 
-use crate::categories::category::Category;
 use crate::categories::source_category::SourceCategory;
 use crate::error::{Error, ErrorKind};
 
@@ -15,7 +11,7 @@ use crate::error::{Error, ErrorKind};
 ///
 /// # Returns
 ///
-/// * `Ok`: returns the ownership of the category.
+/// * `Ok`: a random id has been successfully set.
 /// * `Err`: contains the error that occurred.
 pub fn set_random_id(source_category: &mut SourceCategory) -> Result<(), Error> {
     match source_category.id {
