@@ -3,6 +3,7 @@ use std::fs::DirEntry;
 use std::io::{Error, ErrorKind};
 use std::rc::Rc;
 
+use crate::attributes::attribute::Attribute;
 use crate::categories::category::Category;
 use crate::categories::category_io::CategoryIO;
 use crate::categories::source_category::SourceCategory;
@@ -29,14 +30,31 @@ impl CategoryFileIO {
 impl CategoryIO for CategoryFileIO {
     fn read(&mut self) -> Result<SourceCategory, Error> {
         match std::fs::read_to_string(self.path.clone()) {
-            Ok(json_category) => match serde_json::de::from_str(json_category.as_str()) {
-                Ok(category) => {
-                    return Ok(category);
+            Ok(json_category) => {
+                let category_result: Result<SourceCategory, serde_json::Error> =
+                    serde_json::from_str(json_category.as_str());
+                match category_result {
+                    Ok(mut category) => {
+                        match self.parent_name() {
+                            Ok(parent_name_nullable) => category.parent_name = parent_name_nullable,
+                            Err(error) => return Err(error),
+                        }
+
+                        return Ok(category);
+                    }
+                    Err(error) => {
+                        return Err(Error::new(
+                            ErrorKind::InvalidData,
+                            format!("[{}] {}", self.path(), error),
+                        ))
+                    }
                 }
-                Err(error) => return Err(Error::new(ErrorKind::InvalidData, format!("{}", error))),
-            },
+            }
             Err(error) => {
-                return Err(error);
+                return Err(Error::new(
+                    error.kind(),
+                    format!("[{}] {}", self.path(), error),
+                ));
             }
         }
     }
@@ -53,7 +71,7 @@ impl CategoryIO for CategoryFileIO {
                         ),
                         name: borrow.name.clone(),
                         selectable_as_last: Some(borrow.selectable_as_last),
-                        attributes: borrow.attributes.clone(),
+                        attributes: Attribute::to_source_attributes(borrow.attributes.as_slice()),
                     },
                     None => SourceCategory {
                         id: Some(borrow.id.clone()),
@@ -61,21 +79,24 @@ impl CategoryIO for CategoryFileIO {
                         parent_name: None,
                         name: borrow.name.clone(),
                         selectable_as_last: Some(borrow.selectable_as_last),
-                        attributes: borrow.attributes.clone(),
+                        attributes: Attribute::to_source_attributes(borrow.attributes.as_slice()),
                     },
                 };
 
                 match serde_json::to_string_pretty(&source_category) {
                     Ok(json_category) => std::fs::write(self.path.clone(), json_category),
                     Err(error) => {
-                        return Err(Error::new(ErrorKind::InvalidData, format!("{}", error)));
+                        return Err(Error::new(
+                            ErrorKind::InvalidData,
+                            format!("[{}] {}", self.path(), error),
+                        ));
                     }
                 }
             }
             Err(error) => {
                 return Err(Error::new(
                     ErrorKind::Interrupted,
-                    format!("failed to borrow category: {}", error),
+                    format!("[{}] failed to borrow category: {}", self.path(), error),
                 ))
             }
         }
@@ -127,7 +148,7 @@ fn build_for_path(path: &str) -> Result<Vec<Box<dyn CategoryIO>>, Error> {
                         None => {
                             return Err(Error::new(
                                 ErrorKind::Unsupported,
-                                "Could not convert path to string.",
+                                "could not convert path to string.",
                             ));
                         }
                     },

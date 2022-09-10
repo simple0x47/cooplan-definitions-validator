@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use crate::attributes::attribute::Attribute;
+use crate::attributes::source_attribute::SourceAttribute;
 use crate::error::{Error, ErrorKind};
 
 /// Sets a random id to the attribute.
@@ -11,19 +11,19 @@ use crate::error::{Error, ErrorKind};
 ///
 /// # Returns
 ///
-/// * `Ok`: returns the ownership of the attribute.
+/// * `Ok`: id has been generated correctly.
 /// * `Error`: contains the error that occurred.
-pub fn set_random_id(mut attribute: Attribute) -> Result<Attribute, Error> {
+pub fn set_random_id(attribute: &mut SourceAttribute) -> Result<(), Error> {
     match attribute.id {
         Some(_) => Err(Error::new(
             ErrorKind::CannotOverrideId,
-            "Attribute already has an id",
+            "attribute already has an id",
         )),
         None => {
             let id = Uuid::new_v4();
             attribute.id = Some(id.to_string());
 
-            Ok(attribute)
+            Ok(())
         }
     }
 }

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::attributes::attribute::Attribute;
+use crate::attributes::source_attribute::SourceAttribute;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SourceCategory {
@@ -9,5 +9,5 @@ pub struct SourceCategory {
     pub parent_name: Option<String>,
     pub name: String,
     pub selectable_as_last: Option<bool>,
-    pub attributes: Vec<Attribute>,
+    pub attributes: Vec<SourceAttribute>,
 }

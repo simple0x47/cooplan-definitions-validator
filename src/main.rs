@@ -1,20 +1,24 @@
-use validator::Validator;
+use ci::CI;
 
 mod attributes;
 mod categories;
 mod error;
 mod tests;
 
+pub mod ci;
 mod config;
 mod config_file_reader;
 mod config_reader;
-pub mod validator;
 
 fn main() {
-    let mut validator = Validator::new();
-
-    match validator.validate() {
-        Ok(_) => (),
+    match CI::try_new() {
+        Ok(mut validator) => match validator.run_ci_logic() {
+            Ok(_) => (),
+            Err(error) => {
+                println!("Error: {}", error);
+                std::process::exit(1);
+            }
+        },
         Err(error) => {
             println!("Error: {}", error);
             std::process::exit(1);

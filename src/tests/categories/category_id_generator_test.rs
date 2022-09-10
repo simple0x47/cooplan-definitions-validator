@@ -1,7 +1,7 @@
-use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::attributes::source_attribute::SourceAttribute;
 use crate::categories::category::Category;
 
 #[cfg(test)]
@@ -40,7 +40,7 @@ fn unique_random_id_constraint() {
     let mut categories: Vec<Rc<RefCell<Category>>> = Vec::new();
 
     for i in 0..1000 {
-        let mut category: SourceCategory = SourceCategory {
+        let mut source_category: SourceCategory = SourceCategory {
             id: None,
             parent: None,
             parent_name: None,
@@ -49,19 +49,19 @@ fn unique_random_id_constraint() {
             attributes: Vec::new(),
         };
 
-        set_random_id(&mut category).unwrap();
+        set_random_id(&mut source_category).unwrap();
 
-        let id = category.id.clone().unwrap();
+        let id = source_category.id.clone().unwrap();
         let entry: CategoryEntry = CategoryEntry {
-            id: category.id.clone().unwrap(),
+            id: source_category.id.clone().unwrap(),
         };
 
         entries.insert(id.clone(), entry);
         categories.push(Category::new(
             id.clone(),
-            category.name,
-            category.selectable_as_last.unwrap_or(false),
-            category.attributes,
+            source_category.name,
+            source_category.selectable_as_last.unwrap_or(false),
+            SourceAttribute::to_attributes(source_category.attributes.as_slice()).unwrap(),
         ));
     }
 

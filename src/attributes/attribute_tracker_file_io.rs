@@ -3,21 +3,21 @@ use std::{
     io::{Error, ErrorKind},
 };
 
-use crate::attributes::attribute_id_tracker_io::AttributeIdTrackerIO;
+use crate::attributes::attribute_tracker_io::AttributeTrackerIO;
 
-use super::attribute_id_tracker::AttributeEntry;
+use super::attribute_tracker_io::AttributeEntry;
 
-pub struct AttributeIdTrackerFileIO {}
+pub struct AttributeTrackerFileIO {}
 
 const ID_TRACKER_PATH: &str = "./attribute_id_tracker.csv";
 
-impl AttributeIdTrackerFileIO {
-    pub fn new() -> AttributeIdTrackerFileIO {
-        AttributeIdTrackerFileIO {}
+impl AttributeTrackerFileIO {
+    pub fn new() -> AttributeTrackerFileIO {
+        AttributeTrackerFileIO {}
     }
 }
 
-impl AttributeIdTrackerIO for AttributeIdTrackerFileIO {
+impl AttributeTrackerIO for AttributeTrackerFileIO {
     /// Proceeds to read the entries from a file that contains the id and the data type of an attribute, separated by ';', i.e. "1234-1234-1234;date".
     ///
     /// # Returns
@@ -48,7 +48,7 @@ impl AttributeIdTrackerIO for AttributeIdTrackerFileIO {
                         result[0].to_string(),
                         AttributeEntry {
                             id: result[0].to_string(),
-                            attribute_type: result[1].to_string(),
+                            data_type: result[1].to_string(),
                         },
                     );
                 }
@@ -64,8 +64,7 @@ impl AttributeIdTrackerIO for AttributeIdTrackerFileIO {
     fn write_entry(&self, entry: &AttributeEntry) -> Result<(), std::io::Error> {
         match std::fs::read_to_string(ID_TRACKER_PATH) {
             Ok(current_content) => {
-                let new_content =
-                    format!("{}\n{};{}", current_content, entry.id, entry.attribute_type);
+                let new_content = format!("{}\n{};{}", current_content, entry.id, entry.data_type);
 
                 match std::fs::write(ID_TRACKER_PATH, new_content) {
                     Ok(_) => Ok(()),
