@@ -15,7 +15,7 @@ env:
 jobs:
   test:
     name: integration
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.ref.name != 'main' }}
     
     runs-on: ubuntu-latest
 
