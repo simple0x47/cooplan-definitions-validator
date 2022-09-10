@@ -8,6 +8,7 @@ use crate::{
     error::Error,
 };
 
+/// Validates there are no missing IDs.
 pub struct IdTrackingValidation {
     attribute_id_tracker: AttributeIdTracker,
 }

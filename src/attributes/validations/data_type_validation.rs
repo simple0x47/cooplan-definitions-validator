@@ -5,6 +5,7 @@ use crate::{
 
 use super::validation::Validation;
 
+/// Detects whether or not an attribute's data type is valid.
 pub struct DataTypeValidation {
     failed_validations: Vec<Error>,
     valid_data_types: Vec<String>,

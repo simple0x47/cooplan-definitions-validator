@@ -11,7 +11,7 @@ use crate::error::{Error, ErrorKind};
 ///
 /// # Returns
 ///
-/// * `Ok`: returns the ownership of the category.
+/// * `Ok`: a random id has been successfully set.
 /// * `Err`: contains the error that occurred.
 pub fn set_random_id(source_category: &mut SourceCategory) -> Result<(), Error> {
     match source_category.id {

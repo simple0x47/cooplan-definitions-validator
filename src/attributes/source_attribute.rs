@@ -4,6 +4,7 @@ use crate::error::Error;
 
 use super::attribute::Attribute;
 
+/// Partial or full, input based attribute.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SourceAttribute {
     pub id: Option<String>,

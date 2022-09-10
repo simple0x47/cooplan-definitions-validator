@@ -102,6 +102,12 @@ impl CategoryIO for CategoryFileIO {
         }
     }
 
+    /// Retrieves the category's parent name based on the parent directory.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok`: parent's name string or none if category has no parent.
+    /// * `Err`: contains the error that occurred.
     fn parent_name(&self) -> Result<Option<String>, Error> {
         let path = self.path.clone();
 
