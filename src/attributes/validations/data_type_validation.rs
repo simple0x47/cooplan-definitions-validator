@@ -1,7 +1,6 @@
-use crate::{
-    attributes::attribute::Attribute,
-    error::{Error, ErrorKind},
-};
+use cooplan_definitions_lib::attribute::Attribute;
+
+use crate::error::{Error, ErrorKind};
 
 use super::validation::Validation;
 

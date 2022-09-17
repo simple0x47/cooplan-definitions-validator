@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
+use cooplan_definitions_lib::attribute::Attribute;
+
 use crate::{
     attributes::{
-        attribute::Attribute, attribute_id_tracker::AttributeIdTracker,
-        attribute_tracker_io::AttributeEntry, validations::validation::Validation,
+        attribute_id_tracker::AttributeIdTracker, attribute_tracker_io::AttributeEntry,
+        validations::validation::Validation,
     },
     error::Error,
 };

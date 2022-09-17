@@ -1,7 +1,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::categories::category::Category;
+use cooplan_definitions_lib::category::Category;
+
 use crate::error::Error;
 
 pub trait Validation {

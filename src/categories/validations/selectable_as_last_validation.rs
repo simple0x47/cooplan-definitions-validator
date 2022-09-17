@@ -1,7 +1,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::categories::category::Category;
+use cooplan_definitions_lib::category::Category;
+
 use crate::categories::validations::validation::Validation;
 use crate::error::{Error, ErrorKind};
 

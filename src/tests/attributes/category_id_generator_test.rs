@@ -1,3 +1,5 @@
+use cooplan_definitions_lib::source_attribute::SourceAttribute;
+
 #[cfg(test)]
 use crate::attributes::attribute_tracker_io::AttributeEntry;
 
@@ -5,9 +7,7 @@ use crate::attributes::attribute_tracker_io::AttributeEntry;
 fn error_on_setting_random_id_to_attribute_with_id() {
     use crate::error::ErrorKind;
 
-    use crate::attributes::{
-        attribute_id_generator::set_random_id, source_attribute::SourceAttribute,
-    };
+    use crate::attributes::attribute_id_generator::set_random_id;
 
     let mut first_attribute: SourceAttribute = SourceAttribute {
         id: Some("ABCD".to_string()),
@@ -29,7 +29,6 @@ fn unique_random_id_constraint() {
 
     use crate::attributes::{
         attribute_id_generator::set_random_id, attribute_id_tracker::AttributeIdTracker,
-        source_attribute::SourceAttribute,
     };
 
     let mut entries: HashMap<String, AttributeEntry> = HashMap::new();

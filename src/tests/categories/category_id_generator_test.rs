@@ -2,15 +2,14 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::attributes::source_attribute::SourceAttribute;
-use crate::categories::category::Category;
+use cooplan_definitions_lib::{
+    category::Category, source_attribute::SourceAttribute, source_category::SourceCategory,
+};
 
 #[test]
 fn error_on_setting_random_id_to_category_with_id() {
     use crate::categories::category_id_generator::set_random_id;
     use crate::error::ErrorKind;
-
-    use crate::categories::source_category::SourceCategory;
 
     let mut first_category: SourceCategory = SourceCategory {
         id: Some("ABCD".to_string()),
@@ -33,7 +32,7 @@ fn unique_random_id_constraint() {
 
     use crate::categories::{
         category_id_generator::set_random_id, category_id_tracker::CategoryEntry,
-        category_id_tracker::CategoryIdTracker, source_category::SourceCategory,
+        category_id_tracker::CategoryIdTracker,
     };
 
     let mut entries: HashMap<String, CategoryEntry> = HashMap::new();

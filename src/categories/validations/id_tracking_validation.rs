@@ -1,7 +1,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::categories::category::Category;
+use cooplan_definitions_lib::category::Category;
+
 use crate::categories::category_id_tracker::CategoryIdTracker;
 use crate::categories::category_id_tracker_file_io::CategoryIdTrackerFileIO;
 use crate::categories::category_id_tracker_io::CategoryIdTrackerIO;

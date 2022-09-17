@@ -4,17 +4,18 @@ use std::rc::Rc;
 
 use crate::attributes::attribute_tracker_file_io::AttributeTrackerFileIO;
 use crate::attributes::attribute_tracker_io::{AttributeEntry, AttributeTrackerIO};
-use crate::attributes::source_attribute::SourceAttribute;
 use crate::attributes::validations::data_type_constant_validation::DataTypeConstantValidation;
 use crate::attributes::validations::data_type_validation::DataTypeValidation;
-use crate::categories::category::Category;
+use cooplan_definitions_lib::category::Category;
+use cooplan_definitions_lib::source_attribute::SourceAttribute;
+use cooplan_definitions_lib::source_category::SourceCategory;
+
 use crate::categories::category_file_io::build_for_all_categories;
 use crate::categories::category_id_generator::set_random_id;
 use crate::categories::category_id_tracker::CategoryEntry;
 use crate::categories::category_id_tracker_file_io::CategoryIdTrackerFileIO;
 use crate::categories::category_id_tracker_io::CategoryIdTrackerIO;
 use crate::categories::category_io::CategoryIO;
-use crate::categories::source_category::SourceCategory;
 use crate::categories::validations::id_tracking_validation::IdTrackingValidation;
 use crate::categories::validations::selectable_as_last_validation::SelectableAsLastValidation;
 use crate::categories::validations::validation::Validation;
@@ -277,7 +278,7 @@ impl CI {
                         match SourceAttribute::to_attributes(source_category.attributes.as_slice())
                         {
                             Ok(attributes) => attributes,
-                            Err(error) => return Err(error),
+                            Err(error) => return Err(Error::from(error)),
                         };
 
                     let category = Category::new(
@@ -335,15 +336,19 @@ impl CI {
                 let attributes =
                     match SourceAttribute::to_attributes(source_category.attributes.as_slice()) {
                         Ok(attributes) => attributes,
-                        Err(error) => return Err(error),
+                        Err(error) => return Err(Error::from(error)),
                     };
-                Category::new_into_parent(
+
+                match Category::new_into_parent(
                     source_category.id.unwrap(),
                     Rc::downgrade(parent_category),
                     source_category.name,
                     source_category.selectable_as_last.unwrap_or(false),
                     attributes,
-                )
+                ) {
+                    Ok(category) => Ok(category),
+                    Err(error) => Err(Error::from(error)),
+                }
             }
             None => Err(Error::new(
                 ErrorKind::ParentNotAvailable,

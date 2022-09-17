@@ -31,7 +31,7 @@ impl DataTypeConstantValidation {
 impl Validation for DataTypeConstantValidation {
     fn partially_validate(
         &mut self,
-        attributes: &[crate::attributes::attribute::Attribute],
+        attributes: &[cooplan_definitions_lib::attribute::Attribute],
     ) -> Result<(), Error> {
         for attribute in attributes {
             match self.expected_data_types.remove(&attribute.id) {

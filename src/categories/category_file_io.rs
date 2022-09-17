@@ -3,10 +3,11 @@ use std::fs::DirEntry;
 use std::io::{Error, ErrorKind};
 use std::rc::Rc;
 
-use crate::attributes::attribute::Attribute;
-use crate::categories::category::Category;
+use cooplan_definitions_lib::attribute::Attribute;
+use cooplan_definitions_lib::category::Category;
+use cooplan_definitions_lib::source_category::SourceCategory;
+
 use crate::categories::category_io::CategoryIO;
-use crate::categories::source_category::SourceCategory;
 
 const CATEGORIES_DIRECTORY: &str = "./categories/";
 

@@ -1,6 +1,6 @@
+use cooplan_definitions_lib::source_attribute::SourceAttribute;
 use uuid::Uuid;
 
-use crate::attributes::source_attribute::SourceAttribute;
 use crate::error::{Error, ErrorKind};
 
 /// Sets a random id to the attribute.
