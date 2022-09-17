@@ -1,12 +1,12 @@
+use cooplan_definitions_lib::source_attribute::SourceAttribute;
+
 #[cfg(test)]
 use crate::attributes::attribute_tracker_io::AttributeEntry;
 
 #[test]
 fn error_id_attribute_not_found() {
+    use crate::attributes::attribute_id_tracker::AttributeIdTracker;
     use crate::attributes::attribute_tracker_io::AttributeEntry;
-    use crate::attributes::{
-        attribute_id_tracker::AttributeIdTracker, source_attribute::SourceAttribute,
-    };
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
@@ -31,9 +31,7 @@ fn error_id_attribute_not_found() {
 
 #[test]
 fn error_duplicated_id_attribute() {
-    use crate::attributes::{
-        attribute_id_tracker::AttributeIdTracker, source_attribute::SourceAttribute,
-    };
+    use crate::attributes::attribute_id_tracker::AttributeIdTracker;
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
@@ -99,9 +97,7 @@ fn error_missing_ids() {
 
 #[test]
 fn id_comparison_is_correct() {
-    use crate::attributes::{
-        attribute_id_tracker::AttributeIdTracker, source_attribute::SourceAttribute,
-    };
+    use crate::attributes::attribute_id_tracker::AttributeIdTracker;
     use crate::error::ErrorKind;
     use std::collections::HashMap;
 
@@ -154,9 +150,7 @@ fn id_comparison_is_correct() {
 fn track_and_close_successfully() {
     use std::collections::HashMap;
 
-    use crate::attributes::{
-        attribute_id_tracker::AttributeIdTracker, source_attribute::SourceAttribute,
-    };
+    use crate::attributes::attribute_id_tracker::AttributeIdTracker;
 
     let mut entries: HashMap<String, AttributeEntry> = HashMap::new();
     entries.insert(

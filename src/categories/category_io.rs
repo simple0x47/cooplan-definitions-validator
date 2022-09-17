@@ -2,8 +2,8 @@ use std::cell::RefCell;
 use std::io::Error;
 use std::rc::Rc;
 
-use crate::categories::category::Category;
-use crate::categories::source_category::SourceCategory;
+use cooplan_definitions_lib::category::Category;
+use cooplan_definitions_lib::source_category::SourceCategory;
 
 /// Abstract wrapping for interacting with the storing of categories.
 pub trait CategoryIO {

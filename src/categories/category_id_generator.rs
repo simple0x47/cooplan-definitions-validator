@@ -1,6 +1,6 @@
+use cooplan_definitions_lib::source_category::SourceCategory;
 use uuid::Uuid;
 
-use crate::categories::source_category::SourceCategory;
 use crate::error::{Error, ErrorKind};
 
 /// Sets a random id to the category.

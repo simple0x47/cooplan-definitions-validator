@@ -3,7 +3,8 @@
 #[cfg(test)]
 use std::rc::Rc;
 
-use crate::categories::category::Category;
+use cooplan_definitions_lib::category::Category;
+
 use crate::categories::validations::id_tracking_validation::IdTrackingValidation;
 use crate::categories::validations::validation::Validation;
 use crate::error::ErrorKind;

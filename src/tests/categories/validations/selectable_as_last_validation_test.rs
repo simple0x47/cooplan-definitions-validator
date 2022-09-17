@@ -2,7 +2,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::categories::category::Category;
+use cooplan_definitions_lib::category::Category;
+
 use crate::categories::validations::selectable_as_last_validation::SelectableAsLastValidation;
 use crate::categories::validations::validation::Validation;
 use crate::error::ErrorKind;
@@ -71,7 +72,7 @@ fn detects_correct_category_correctly() {
 fn detects_correct_expanded_category_tree_correctly() {
     use std::rc::Rc;
 
-    use crate::categories::category::Category;
+    use cooplan_definitions_lib::category::Category;
 
     let root_category = Category::new("root".to_string(), "root".to_string(), false, Vec::new());
 
@@ -135,7 +136,7 @@ fn detects_correct_expanded_category_tree_correctly() {
 fn error_if_there_is_a_non_selectable_last_category() {
     use std::rc::Rc;
 
-    use crate::categories::category::Category;
+    use cooplan_definitions_lib::category::Category;
 
     let root_category = Category::new("root".to_string(), "root".to_string(), false, Vec::new());
 

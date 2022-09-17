@@ -53,3 +53,22 @@ impl fmt::Display for Error {
         write!(f, "{}", self.message)
     }
 }
+
+impl From<cooplan_definitions_lib::error::Error> for Error {
+    fn from(error: cooplan_definitions_lib::error::Error) -> Self {
+        let kind: ErrorKind = match error.kind() {
+            cooplan_definitions_lib::error::ErrorKind::FailedToBorrowCategory => {
+                ErrorKind::FailedToBorrowCategory
+            }
+            cooplan_definitions_lib::error::ErrorKind::MissingId => ErrorKind::MissingId,
+            cooplan_definitions_lib::error::ErrorKind::ParentNotAvailable => {
+                ErrorKind::ParentNotAvailable
+            }
+        };
+
+        Error {
+            kind,
+            message: error.message.clone(),
+        }
+    }
+}
