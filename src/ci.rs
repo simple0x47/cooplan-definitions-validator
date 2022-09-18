@@ -6,16 +6,16 @@ use crate::attributes::attribute_tracker_file_io::AttributeTrackerFileIO;
 use crate::attributes::attribute_tracker_io::{AttributeEntry, AttributeTrackerIO};
 use crate::attributes::validations::data_type_constant_validation::DataTypeConstantValidation;
 use crate::attributes::validations::data_type_validation::DataTypeValidation;
+use cooplan_definitions_io_lib::category_file_io::build_for_all_categories;
+use cooplan_definitions_io_lib::category_io::CategoryIO;
 use cooplan_definitions_lib::category::Category;
 use cooplan_definitions_lib::source_attribute::SourceAttribute;
 use cooplan_definitions_lib::source_category::SourceCategory;
 
-use crate::categories::category_file_io::build_for_all_categories;
 use crate::categories::category_id_generator::set_random_id;
 use crate::categories::category_id_tracker::CategoryEntry;
 use crate::categories::category_id_tracker_file_io::CategoryIdTrackerFileIO;
 use crate::categories::category_id_tracker_io::CategoryIdTrackerIO;
-use crate::categories::category_io::CategoryIO;
 use crate::categories::validations::id_tracking_validation::IdTrackingValidation;
 use crate::categories::validations::selectable_as_last_validation::SelectableAsLastValidation;
 use crate::categories::validations::validation::Validation;
@@ -25,6 +25,7 @@ use crate::config_reader::ConfigReader;
 use crate::error::{Error, ErrorKind};
 
 const CONFIG_FILE_PATH: &str = "./config.json";
+const CATEGORIES_ROOT: &str = "./categories/";
 
 /// (C)ontinuous (I)ntegration tool that provides means for integrating and validating changes for
 /// product's definitions.
@@ -96,7 +97,7 @@ impl CI {
     }
 
     fn read_source_categories(&mut self) -> Result<Vec<SourceCategory>, Error> {
-        match build_for_all_categories() {
+        match build_for_all_categories(CATEGORIES_ROOT.to_string()) {
             Ok(categories_io) => {
                 let mut source_categories = Vec::new();
 
