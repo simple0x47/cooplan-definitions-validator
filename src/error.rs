@@ -27,6 +27,7 @@ pub enum ErrorKind {
     FailedDataTypeAttributeValidation,
     FailedDataTypeConstantAttributeValidation,
     FailedToReadConfig,
+    ReservedKeywordUsedAsName,
 }
 
 #[derive(Debug)]
@@ -63,6 +64,12 @@ impl From<cooplan_definitions_lib::error::Error> for Error {
             cooplan_definitions_lib::error::ErrorKind::MissingId => ErrorKind::MissingId,
             cooplan_definitions_lib::error::ErrorKind::ParentNotAvailable => {
                 ErrorKind::ParentNotAvailable
+            }
+            cooplan_definitions_lib::error::ErrorKind::FailedToValidateCategory => {
+                ErrorKind::InvalidDataType
+            }
+            cooplan_definitions_lib::error::ErrorKind::FailedToValidateSourceAttribute => {
+                ErrorKind::InvalidDataType
             }
         };
 

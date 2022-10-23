@@ -3,6 +3,7 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub struct Config {
     valid_data_types: Vec<String>,
+    reserved_keywords: Vec<String>,
 }
 
 impl Config {
@@ -14,5 +15,15 @@ impl Config {
         }
 
         valid_data_types_copy
+    }
+
+    pub fn reserved_keywords(&self) -> Vec<String> {
+        let mut reserved_keywords_copy: Vec<String> = Vec::new();
+
+        for reserved_keyword in &self.reserved_keywords {
+            reserved_keywords_copy.push(reserved_keyword.clone());
+        }
+
+        reserved_keywords_copy
     }
 }
