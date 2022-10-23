@@ -6,7 +6,7 @@
         "enum",
         "color"
     ],
-    "reserved_attribute_names": [
+    "reserved_keywords": [
         "version",
         "type"
     ]
