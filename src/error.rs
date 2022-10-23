@@ -27,6 +27,7 @@ pub enum ErrorKind {
     FailedDataTypeAttributeValidation,
     FailedDataTypeConstantAttributeValidation,
     FailedToReadConfig,
+    ReservedKeywordUsedAsName,
 }
 
 #[derive(Debug)]

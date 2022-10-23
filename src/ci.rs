@@ -6,6 +6,7 @@ use crate::attributes::attribute_tracker_file_io::AttributeTrackerFileIO;
 use crate::attributes::attribute_tracker_io::{AttributeEntry, AttributeTrackerIO};
 use crate::attributes::validations::data_type_constant_validation::DataTypeConstantValidation;
 use crate::attributes::validations::data_type_validation::DataTypeValidation;
+use crate::attributes::validations::reserved_attribute_names_validation::ReservedAttributeNamesValidation;
 use cooplan_definitions_io_lib::category_file_io::build_for_all_categories;
 use cooplan_definitions_io_lib::category_io::CategoryIO;
 use cooplan_definitions_lib::category::Category;
@@ -442,6 +443,9 @@ impl CI {
                 validations.push(Rc::new(RefCell::new(DataTypeConstantValidation::new(
                     &entries,
                 ))));
+                validations.push(Rc::new(RefCell::new(
+                    ReservedAttributeNamesValidation::new(self.config.reserved_keywords()),
+                )));
             }
             Err(error) => {
                 return Err(Error::new(
