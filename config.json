@@ -1,10 +1,11 @@
 {
     "valid_data_types": [
-        "numeric",
+        "boolean",
+        "integer",
+        "decimal",
         "string",
         "date",
-        "enum",
-        "color"
+        "enum"
     ],
     "reserved_keywords": [
         "version",
