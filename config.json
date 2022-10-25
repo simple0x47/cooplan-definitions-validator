@@ -3,9 +3,7 @@
         "boolean",
         "integer",
         "decimal",
-        "string",
-        "date",
-        "enum"
+        "string"
     ],
     "reserved_keywords": [
         "version",
